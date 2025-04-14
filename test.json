@@ -1,0 +1,45 @@
+[
+    {
+        "spritesheet": "main.png",
+        "width":16,
+        "height":20,
+        "animations":{
+            "default":{
+                "loop": true,
+                "frames": 1,
+                "column":0,
+                "row":0,
+                "direction":"x"
+            },
+            "walk":{
+                "loop": true,
+                "frames": 2,
+                "column":0,
+                "row":0,
+                "direction":"x"
+            },
+            "fall":{
+                "loop": true,
+                "frames": 1,
+                "column":2,
+                "row":0,
+                "direction":"x"
+            }
+        }
+    },
+    {
+        "spritesheet": "jump.png",
+        "width":16,
+        "height":22,
+        "animations":{
+            "jump":{
+                "loop": true,
+                "frames": 1,
+                "column":0,
+                "row":0,
+                "direction":"x"
+            }
+
+        }
+    }
+]
