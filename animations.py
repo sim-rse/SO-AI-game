@@ -28,7 +28,7 @@ class Animations():
         else:
             print(f"[red]Animation: {name} not found!")
 
-    def load(self, name:str, animation:list, loop = False):
+    def load(self, name:str, animation:list, loop = False, next = None):
         self.animations[name] = Animation(name, animation, loop)
         print(f"[red]Laden van animatie: [green]{name}[/green] met naam van type:[green]{type(name)}[/green] en met lijst: [green]{animation}[/green]\nDit leidt tot vorming van [/red]{self.animations[name]}")
     
@@ -38,6 +38,8 @@ class Animations():
                 self.frame += 1
             elif self.current.loop:
                 self.frame = 0
+            elif self.current.next:
+                self.play(self.current.next)
             #print(f"updaten van {self.current} met frames {self.current.frames} op index {self.frame}")
             self.image = self.current.frames[self.frame]
             self.lastFrameTime = time.time()
@@ -46,12 +48,13 @@ class Animations():
         self.default = name
     
 class Animation():
-    def __init__(self, name:str, frames:list, loop: bool):
+    def __init__(self, name:str, frames:list, loop: bool, next:str = None):
         self.name = name
         self.frames = frames            #aantal frames
 
         self.loop = loop
         self.length = len(frames)
+        self.next = next
         
     def __str__(self):
         return f"Animatie object met naam {self.name} en lengte {self.length}"
