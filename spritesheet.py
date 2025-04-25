@@ -27,8 +27,3 @@ class Spritesheet:                  #getframe van video op youtube gehaald: http
                 animation.append(self.getFrame(column, frame+i, scale))
         
         return animation
-
-
-        """else: 
-            print("Spritesheet.makeAnimation(): Wrong direction given")
-            return 0"""
