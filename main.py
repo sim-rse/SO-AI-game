@@ -1,6 +1,8 @@
 #-------------------------------------------------------------------#
 #         Voorlopige main (start) file voor de game                 #
 #-------------------------------------------------------------------#
+
+#coole sprites ma geen stap animatie: https://diegosanches.com/science-kombat (scroll naar beneden)
 import pygame
 import time
 import os
@@ -29,12 +31,12 @@ def checkDict(dict_to_check,key_to_find, value_if_not_found):
 # de voorlopige classen, mijn idee voor de hierarchie van de classen:       object ˧
 #                                                                                   ↳ andere dingen: platormen, buttons, ... Ze stammen allemaal af van de object classe
 class Object:
-    def __init__(self, x, y, width = 0, height = 0, image = None, hasCollisionEnabled = False, isStatic = True, color = 'blue', animationfile = None, scale = 1):
+    def __init__(self, x, y, width = 0, height = 0, image = None, color = 'blue', animationfile = None, scale = 1):
         self.X = x                  #positie
         self.Y = y
         self.animated = False
+        self.static = True
 
-        
         if animationfile:
             self.animated = True
             print(f"animating {self}")
@@ -55,30 +57,84 @@ class Object:
             self.texture.fill(color)
             print(f"filled surface with color: {color}")
 
-        self.width = self.texture.get_width()
-        self.height = self.texture.get_height()
+        #self.width = self.texture.get_width()
+        #self.height = self.texture.get_height()
+
+        
+
+        self.flipSprite = False #wordt bij bv de speler gebruikt om een naar links kijkende animaties te maken uit naar rechts kijkende sprites
+    
+        self.hitbox = self.getHitbox()
+
+    @property
+    def width(self):
+        return self.texture.get_width()
+    
+    @property
+    def height(self):
+        return self.texture.get_height()
+
+    def getHitbox(self):       #geeft de coordinaten van de hoekpunten terug, handig voor de collisions
+        return {"top":self.Y,"bottom":self.Y+self.height,"left":self.X,"right":self.X+self.width}
+    
+    def blit(self):
+        #deze gaan we voor een betere structuur naar ergens anders moeten verplaatsen
+        if self.flipSprite:
+            screen.blit(pygame.transform.flip(self.texture, True, False), (self.X, self.Y))
+        else:
+            screen.blit(self.texture, (self.X, self.Y)) #bij fotos werkt het licht anders dan bij vormen ma doet hetzelfde als pygame.draw.rect(...) bijvoorbeeld
+    
+    def update(self, otherObjects, dt=1):
+        
+        if self.animated:
+            self.animationHandler()
+            self.animations.update()
+            self.texture = self.animations.image
+        self.blit()
+        
+    def loadAnimations(self, file, scale=1):       #scale verandert de groote van alle frames met factor scale, wordt gebruikt door  de makeAnimation() methode
+        with open(file) as f:
+            data = json.load(f)
+
+        for sheet in data:
+            print(f"[info: sheet] {sheet}")
+            spritesheet = Spritesheet(path = sheet["spritesheet"], width = sheet["width"], height = sheet["height"])
+
+            for animation_name, animation_data in sheet["animations"].items():       #zonder de .items() krijg je alleen de namen van de keys en niet hun waarden erbij
+                #print(animation_name, animation_data)
+
+                temp_scale = checkDict(animation_data,"scale", scale)
+                anim = spritesheet.makeAnimation(frames=animation_data["frames"],column=animation_data["column"], row=animation_data["row"], direction=animation_data["direction"], scale = temp_scale)
+                next = checkDict(animation_data, "next", None)
+                loop = checkDict(animation_data, "loop", False)
+                self.animations.load(name = animation_name, animation = anim, loop = loop, next=next)     #next is ook (onnodige) een functie, dus ideaal de naam veranderen in de toekomst
+
+    def playanimation(self, animation):
+        self.animations.play(animation)
+
+    def updateAnimation(self):
+        pass
+
+    def animationHandler(self):
+        pass
+
+class MovingObject(Object):
+    def __init__(self, x, y, width=0, height=0, image=None, hasCollisionEnabled=False, isStatic=True, color='blue', animationfile=None, scale=1):
+        super().__init__(x, y, width, height, image, color, animationfile, scale)
 
         self.velX = 0           #snelheid (velocity)
         self.velY = 0
         self.accX = 0           #acceleratie
-
-        self.flipSprite = False #wordt bij bv de speler gebruikt om een naar links kijkende animaties te maken uit naar rechts kijkende sprites
 
         if isStatic:            #zwaartkracht geven
             self.accY = 0 
         else: 
             self.accY = 1
         
-        
         self.collisionsEnabled = hasCollisionEnabled
         self.static = isStatic          #als het statisch is, heeft zwaartekracht geen invloed
-        self.hitbox = self.getHitbox()
+
         self.onGround = False
-
-        
-
-    def getHitbox(self):       #geeft de coordinaten van de hoekpunten terug, handig voor de collisions
-        return {"top":self.Y,"bottom":self.Y+self.height,"left":self.X,"right":self.X+self.width}
     
     def updatePos(self, otherObjects, dt):
 
@@ -117,22 +173,6 @@ class Object:
                         self.Y = otherObject.hitbox["bottom"]
                     self.velY = 0
                     self.hitbox = self.getHitbox()
-    def blit(self):
-        #deze gaan we voor een betere structuur naar ergens anders moeten verplaatsen
-        if self.flipSprite:
-            screen.blit(pygame.transform.flip(self.texture, True, False), (self.X, self.Y))
-        else:
-            screen.blit(self.texture, (self.X, self.Y)) #bij fotos werkt het licht anders dan bij vormen ma doet hetzelfde als pygame.draw.rect(...) bijvoorbeeld
-    
-    def update(self, otherObjects, dt=1):
-        if not self.static:
-            self.updatePos(otherObjects,dt)
-        if self.animated:
-            self.animationHandler()
-            self.animations.update()
-            self.texture = self.animations.image
-        self.blit()
-        
 
     def smoothSpeedChange(self,targetValue):
         difference = targetValue - self.velX
@@ -161,31 +201,13 @@ class Object:
             return True
         else:
             return False
-
-    def loadAnimations(self, file, scale=1):       #scale verandert de groote van alle frames met factor scale, wordt gebruikt door  de makeAnimation() methode
-        with open(file) as f:
-            data = json.load(f)
-
-        for sheet in data:
-            print(f"[info: sheet] {sheet}")
-            spritesheet = Spritesheet(path = sheet["spritesheet"], width = sheet["width"], height = sheet["height"])
-
-            for animation_name, animation_data in sheet["animations"].items():       #zonder de .items() krijg je alleen de namen van de keys en niet hun waarden erbij
-                #print(animation_name, animation_data)
-                anim = spritesheet.makeAnimation(frames=animation_data["frames"],column=animation_data["column"], row=animation_data["row"], direction=animation_data["direction"], scale = scale)
-                next = checkDict(animation_data, "next", None)
-                loop = checkDict(animation_data, "loop", False)
-                self.animations.load(name = animation_name, animation = anim, loop = loop, next=next)     #next is ook (onnodige) een functie, dus ideaal de naam veranderen in de toekomst
-
-    def playanimation(self, animation):
-        self.animations.play(animation)
-
-    def updateAnimation(self):
-        pass
-    def animationHandler(self):
-        pass
-
-class Entity(Object):
+        
+    def update(self, otherObjects, dt=1):
+        if not self.static:
+            self.updatePos(otherObjects,dt)
+        super().update(otherObjects, dt)
+    
+class Entity(MovingObject):
     def __init__(self, x, y, width = 0, height = 0, image = "placeholder.png", animationfile = None, scale = 1, health = 20):
         super().__init__(x, y, width, height, image, hasCollisionEnabled=True, isStatic=False, animationfile = animationfile, scale = scale)
 
@@ -282,7 +304,9 @@ def gameLoop(running = True):       #we gaan verschillende loops op deze manier 
         # delta time
         dt = time.time() - last_time
         last_time = time.time()
-        #pygame.display.set_caption(str(dt))
+        if dt==0: fps = 0
+        else: fps = 1/dt
+        pygame.display.set_caption(f"fps: {str(fps)}")
 
         for event in pygame.event.get():
             match event.type: 
