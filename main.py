@@ -64,7 +64,7 @@ class Object:
 
         self.flipSprite = False #wordt bij bv de speler gebruikt om een naar links kijkende animaties te maken uit naar rechts kijkende sprites
     
-        self.hitbox = self.getHitbox()
+        
 
     @property
     def width(self):
@@ -74,7 +74,8 @@ class Object:
     def height(self):
         return self.texture.get_height()
 
-    def getHitbox(self):       #geeft de coordinaten van de hoekpunten terug, handig voor de collisions
+    @property
+    def hitbox(self):       #geeft de coordinaten van de hoekpunten terug, handig voor de collisions
         return {"top":self.Y,"bottom":self.Y+self.height,"left":self.X,"right":self.X+self.width}
     
     def blit(self):
@@ -141,7 +142,6 @@ class MovingObject(Object):
         # Eerst kijken naar de x as
         self.velX += self.accX*dt  #nieuwe snelheid en positie
         self.X += self.velX*dt
-        self.hitbox = self.getHitbox()
         
         #collisions checken
         if self.collisionsEnabled:
@@ -152,14 +152,12 @@ class MovingObject(Object):
                     elif self.velX < 0:
                         self.X = otherObject.hitbox["right"]
                     self.velX = 0
-                    self.hitbox = self.getHitbox()
 
         # dan de y as
         #if not self.static and not
 
         self.velY += self.accY*dt
         self.Y += self.velY*dt
-        self.hitbox = self.getHitbox()
         
         self.onGround = False #neemt aan dat de object niet op de grond is, maar als er wel vanonder collision is wordt het wel als op de grond beschouwd (zie enkele lijnen onder)
 
@@ -172,7 +170,6 @@ class MovingObject(Object):
                     elif self.velY < 0:
                         self.Y = otherObject.hitbox["bottom"]
                     self.velY = 0
-                    self.hitbox = self.getHitbox()
 
     def smoothSpeedChange(self,targetValue):
         difference = targetValue - self.velX
@@ -186,7 +183,7 @@ class MovingObject(Object):
             self.accX = difference          #zodat hij niet oneindig klein begint te gaan en dat de walk animatie blijft spelen bv.
     
     def collideswith(self, otherObject):        #van WPO6 gekopieerd, ma we werken hier enkel met rechthoeken
-        #basically de hitboxen van de twee objecten berekenen, afhankelijk van wat minder zwaar is voor de computer houden wij deze methode of de gethitbox() methode
+        #basically de hitboxen van de twee objecten berekenen, afhankelijk van wat minder zwaar is voor de computer houden wij deze methode of de hitbox() methode
         x1 = self.X
         y1 = self.Y
         x2 = self.X + self.width
@@ -278,6 +275,12 @@ class Player(Entity):
     def update(self,otherObjects,dt=1):
         self.getKeyPress()
         super().update(otherObjects)
+
+class Enemy(Entity):
+    def __init__(self, x, y, width=0, height=0, image="placeholder.png", animationfile=None, scale=1, health=20):
+        super().__init__(x, y, width, height, image, animationfile, scale, health)
+
+    
 
 def timeInteval():          #negeer deze, voorlopig niet gebruikt
     now = time.time()
