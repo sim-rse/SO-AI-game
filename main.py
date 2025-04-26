@@ -138,7 +138,6 @@ class MovingObject(Object):
         self.onGround = False
     
     def updatePos(self, otherObjects, dt):
-
         # Eerst kijken naar de x as
         self.velX += self.accX*dt  #nieuwe snelheid en positie
         self.X += self.velX*dt

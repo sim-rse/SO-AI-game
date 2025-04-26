@@ -6,7 +6,9 @@ from spritesheet import Spritesheet
 from animations import Animations
 
 class Object:
-    def __init__(self, x, y, width = 0, height = 0, image = None, color = 'blue', animationfile = None, scale = 1):
+    def __init__(self, gamevar, x, y, width = 0, height = 0, image = None, color = 'blue', animationfile = None, scale = 1):
+        self.gamevar = gamevar
+
         self.X = x                  #positie
         self.Y = y
         self.animated = False
@@ -53,14 +55,14 @@ class Object:
     def hitbox(self):       #geeft de coordinaten van de hoekpunten terug, handig voor de collisions
         return {"top":self.Y,"bottom":self.Y+self.height,"left":self.X,"right":self.X+self.width}
     
-    def blit(self,screen):
-        #deze gaan we voor een betere structuur naar ergens anders moeten verplaatsen
+    def blit(self):
+        screen = self.gamevar.screen
         if self.flipSprite:
             screen.blit(pygame.transform.flip(self.texture, True, False), (self.X, self.Y))
         else:
             screen.blit(self.texture, (self.X, self.Y)) #bij fotos werkt het licht anders dan bij vormen ma doet hetzelfde als pygame.draw.rect(...) bijvoorbeeld
     
-    def update(self, otherObjects, dt=1):
+    def update(self,otherobjects = None):
         
         if self.animated:
             self.animationHandler()
@@ -95,8 +97,8 @@ class Object:
         pass
 
 class MovingObject(Object):
-    def __init__(self, x, y, width=0, height=0, image=None, hasCollisionEnabled=False, isStatic=True, color='blue', animationfile=None, scale=1):
-        super().__init__(x, y, width, height, image, color, animationfile, scale)
+    def __init__(self, gamevar, x, y, width=0, height=0, image=None, hasCollisionEnabled=False, isStatic=True, color='blue', animationfile=None, scale=1):
+        super().__init__(gamevar, x, y, width, height, image, color, animationfile, scale)
 
         self.velX = 0           #snelheid (velocity)
         self.velY = 0
@@ -112,8 +114,9 @@ class MovingObject(Object):
 
         self.onGround = False
     
-    def updatePos(self, otherObjects, dt):
-
+    def updatePos(self, otherObjects):
+        dt = self.gamevar.dt        #tijdsverschil tussen de frames in seconden om beweging onafhankelijk van de fps te maken (voorlopig heb ik het op 1 gezet want de game was anders veel te traag)
+       
         # Eerst kijken naar de x as
         self.velX += self.accX*dt  #nieuwe snelheid en positie
         self.X += self.velX*dt
@@ -129,7 +132,6 @@ class MovingObject(Object):
                     self.velX = 0
 
         # dan de y as
-        #if not self.static and not
 
         self.velY += self.accY*dt
         self.Y += self.velY*dt
@@ -174,7 +176,8 @@ class MovingObject(Object):
         else:
             return False
         
-    def update(self, otherObjects, dt=1):
-        if not self.static:
-            self.updatePos(otherObjects,dt)
-        super().update(otherObjects, dt)
+    def update(self, otherObjects):
+        
+        if not self.static:         #dit moet nog weg, want object (dus niet bewegende object) is nu een aparte classe
+            self.updatePos(otherObjects)
+        super().update()

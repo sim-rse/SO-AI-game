@@ -2,8 +2,8 @@ import pygame
 from objects import Object, MovingObject
 
 class Entity(MovingObject):
-    def __init__(self, x, y, width = 0, height = 0, image = "placeholder.png", animationfile = None, scale = 1, health = 20):
-        super().__init__(x, y, width, height, image, hasCollisionEnabled=True, isStatic=False, animationfile = animationfile, scale = scale)
+    def __init__(self, gamevar, x, y, width = 0, height = 0, image = "placeholder.png", animationfile = None, scale = 1, health = 20):
+        super().__init__(gamevar, x, y, width, height, image, hasCollisionEnabled=True, isStatic=False, animationfile = animationfile, scale = scale)
 
         self.health = health
         self.strength = 2
@@ -26,14 +26,14 @@ class Entity(MovingObject):
             otherEntity.getDamage(self.strength)
         
 
-    def update(self, otherObjects, dt=1):
+    def update(self, otherObjects):
         super().update(otherObjects)        #doet wat de update van de parent doet plus wat hieronder staat
         if self.health <= 0: 
             self.die()
 
 class Player(Entity):
-    def __init__(self, x, y, width = 0, height = 0, image = "placeholder.png", animationfile = None, scale = 1):
-        super().__init__(x, y, width, height, image, animationfile, scale)
+    def __init__(self, gamevar, x, y, width = 0, height = 0, image = "placeholder.png", animationfile = None, scale = 1):
+        super().__init__(gamevar, x, y, width, height, image, animationfile, scale)
         self.walkSpeed = 10
         #later komen de states en abilities hier
 
@@ -69,10 +69,10 @@ class Player(Entity):
         else:
             self.playanimation("default")
         
-    def update(self,otherObjects,dt=1):
+    def update(self,otherObjects):
         self.getKeyPress()
         super().update(otherObjects)
 
 class Enemy(Entity):
-    def __init__(self, x, y, width=0, height=0, image="placeholder.png", animationfile=None, scale=1, health=20):
-        super().__init__(x, y, width, height, image, animationfile, scale, health)
+    def __init__(self, gamevar, x, y, width=0, height=0, image="placeholder.png", animationfile=None, scale=1, health=20):
+        super().__init__(gamevar, x, y, width, height, image, animationfile, scale, health)

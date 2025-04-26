@@ -5,10 +5,12 @@ from utils import checkDict
 
 clock = pygame.time.Clock()
 
-def gameLoop(screen, running = True):       #we gaan verschillende loops op deze manier aanmaken (een voor de menu een voor de startscreen en dan een voor het spel)
-    player = Player(50,50,width=50,height=50, animationfile = "test.json", scale = 2)
-    ground = Object(0,1920*0.8, width=1080, height=200,color = (0,100,0))
-    objects = [player, ground, Object(120,1920*0.8-30, width=50, height=30), Object(400,1920*0.8-80, width=200, height=30),Object(520,525, width=100, height=100) ]
+def gameLoop(game, running = True):       #we gaan verschillende loops op deze manier aanmaken (een voor de menu een voor de startscreen en dan een voor het spel)
+    screen = game.screen
+    
+    player = Player(game,50,50,width=50,height=50, animationfile = "test.json", scale = 2)
+    ground = Object(game, 0,game.screen_height*0.8, width=game.screen_width, height=200,color = (0,100,0))
+    objects = [player, ground, Object(game, 120,game.screen_height*0.8-30, width=50, height=30), Object(game, 400,game.screen_height*0.8-80, width=200, height=30),Object(game, 520,525, width=100, height=100) ]
     entities = [player]
     gravity = True
 
@@ -20,6 +22,7 @@ def gameLoop(screen, running = True):       #we gaan verschillende loops op deze
         last_time = time.time()
         if dt==0: fps = 0
         else: fps = 1/dt
+        #game.dt = dt
         pygame.display.set_caption(f"fps: {str(fps)}")
 
         for event in pygame.event.get():
@@ -51,5 +54,5 @@ def gameLoop(screen, running = True):       #we gaan verschillende loops op deze
         screen.fill(color=(200,255,255))
         for obj in objects:
             otherobjects = [i for i in objects if i != obj]
-            obj.update(otherobjects, dt = dt)       #updaten van het object zelf en een lijst van alle andere objecten doorgeven
+            obj.update(otherobjects)       #updaten van het object zelf en een lijst van alle andere objecten doorgeven
         pygame.display.flip()
