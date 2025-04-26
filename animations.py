@@ -2,7 +2,7 @@ import time
 from rich import print
 class Animations():
     def __init__(self):
-        self.current = Animation('None animation', [None], False)
+        self.current = Animation('None animation', [None], False)       #current heeft een animatie nodig, dus er wordt een dummy animatie gemaakt zolang er geen nieuwe wordt afgespeeld
         #print("[blue]Current zou hier een keer moeten worden gemaakt")
         self.frame = 0
 
@@ -29,6 +29,8 @@ class Animations():
             print(f"[red]Animation: {name} not found!")
 
     def load(self, name:str, animation:list, loop = False, next = None):
+        if self.animations == {} or name == "default":
+            self.setDefault(name)
         self.animations[name] = Animation(name, animation, loop)
         print(f"[red]Laden van animatie: [green]{name}[/green] met naam van type:[green]{type(name)}[/green] en met lijst: [green]{animation}[/green]\nDit leidt tot vorming van [/red]{self.animations[name]}")
     

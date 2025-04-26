@@ -76,7 +76,8 @@ class Object:
 
         for sheet in data:
             print(f"[info: sheet] {sheet}")
-            spritesheet = Spritesheet(path = sheet["spritesheet"], width = sheet["width"], height = sheet["height"])
+            colorkey = checkDict(sheet,"colorkey", (0,0,0))     #checks if the key existx in the dict. if it does then that value will be used, otherwise it takes the third argument as default one  
+            spritesheet = Spritesheet(path = sheet["spritesheet"], width = sheet["width"], height = sheet["height"], colorkey = tuple(colorkey))
 
             for animation_name, animation_data in sheet["animations"].items():       #zonder de .items() krijg je alleen de namen van de keys en niet hun waarden erbij
                 #print(animation_name, animation_data)
@@ -86,7 +87,6 @@ class Object:
                 next = checkDict(animation_data, "next", None)
                 loop = checkDict(animation_data, "loop", False)
                 self.animations.load(name = animation_name, animation = anim, loop = loop, next=next)     #next is ook (onnodige) een functie, dus ideaal de naam veranderen in de toekomst
-
     def playanimation(self, animation):
         self.animations.play(animation)
 

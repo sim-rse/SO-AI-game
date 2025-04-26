@@ -1,0 +1,38 @@
+[
+    {
+        "spritesheet": "luigi.png",
+        "width":15,
+        "height":22,
+        "colorkey":[255,0,220],
+        "animations":{
+            "default":{
+                "loop": true,
+                "frames": 1,
+                "column":0,
+                "row":0,
+                "direction":"x"
+            },
+            "walk":{
+                "loop": true,
+                "frames": 2,
+                "column":0,
+                "row":0,
+                "direction":"x"
+            },
+            "fall":{
+                "loop": true,
+                "frames": 1,
+                "column":3,
+                "row":0,
+                "direction":"x"
+            },
+            "jump":{
+                "loop": true,
+                "frames": 1,
+                "column":2,
+                "row":0,
+                "direction":"x"
+            }
+        }
+    }
+]
