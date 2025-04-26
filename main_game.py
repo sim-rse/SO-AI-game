@@ -9,6 +9,12 @@ class Game():
         self.dt = 1
         self.window_scale = 1
 
+        self.running = True
+
+        self.scene = "default"
+        self.scene_running = False
+
+        self.debugging = False
     @property
     def screen_width(self):
         return self.screen.get_width()
@@ -27,5 +33,8 @@ pygame.display.set_caption("Untitled Fight Game - Nu met animaties!")
 
 game = Game(screen) #We maken ee game class aan die allerlei variabels over de game in het algemeen (zoals screen, lijsten met entities enz, tijd tussen de frames) groepeert zodat we telkens maar een variabel moeten doorgeven en niet duizenden. Zo kan een object makkelijker variabels van andere objecten veranderen (zolang deze zich ergens in de Game object bevinden) 
 
-gameLoop(game)
+while game.running:
+    match game.scene:
+        case "default":
+            gameLoop(game)
 pygame.quit()
