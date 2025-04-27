@@ -13,6 +13,7 @@ class Game():
 
         self.scene = "default"
         self.scene_running = False
+        self.gravity = 1
 
         self.debugging = False
     @property

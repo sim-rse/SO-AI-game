@@ -3,7 +3,7 @@ from objects import Object, MovingObject
 
 class Entity(MovingObject):
     def __init__(self, gamevar, x, y, width = 0, height = 0, image = "placeholder.png", animationfile = None, scale = 1, health = 20):
-        super().__init__(gamevar, x, y, width, height, image, hasCollisionEnabled=True, isStatic=False, animationfile = animationfile, scale = scale)
+        super().__init__(gamevar, x, y, width, height, image, hasCollisionEnabled=True, affected_by_gravity=True, animationfile = animationfile, scale = scale)
 
         self.health = health
         self.strength = 2
@@ -14,7 +14,7 @@ class Entity(MovingObject):
     
     def jump(self):
         if self.onGround:
-            self.velY = -14
+            self.vel.y = -14
 
     def getDamage(self, damage):
         self.health -= damage
@@ -25,11 +25,34 @@ class Entity(MovingObject):
         if otherEntity:
             otherEntity.getDamage(self.strength)
         
+    def shoot(self):
+        self.gamevar.add(Projectile())
+
 
     def update(self, otherObjects):
         super().update(otherObjects)        #doet wat de update van de parent doet plus wat hieronder staat
         if self.health <= 0: 
             self.die()
+
+class Projectile(Entity):
+    def __init__(self, gamevar, x, y, width=0, height=0, image="placeholder.png", animationfile=None, scale=1, health=20, target = pygame.math.Vector2(0,0)):
+        super().__init__(gamevar, x, y, width, height, image, animationfile, scale, health)
+
+        self.explosionrange = 5
+        self.flyspeed = 2
+        self.target = target.normalize()
+        self.gravity = 0
+        
+
+        self.vel.x = self.target.x*self.flyspeed
+        self.vel.y = self.target.y*self.flyspeed
+
+    def die(self):
+        super().die()
+        for ent in self.gamevar.enitites:
+            if ent.collidesWith(self, range_ = self.explosionrange):
+                ent.getDamage(self.strength)
+
 
 class Player(Entity):
     def __init__(self, gamevar, x, y, width = 0, height = 0, image = "placeholder.png", animationfile = None, scale = 1):
@@ -60,11 +83,11 @@ class Player(Entity):
         self.smoothSpeedChange(accel[0])        #indien we deze methode gebruiken blijft de speler staan indien we zowel links en rechts indrukken, en als je een toets loslaat heb je ook geen problemen met de richting die niet juist kan zijn
 
     def animationHandler(self):
-        if self.velY<0:
+        if self.vel.y<0:
             self.playanimation("jump")
-        elif self.onGround and self.velX !=0:
+        elif self.onGround and self.vel.x !=0:
             self.playanimation("walk")
-        elif self.velY>0:
+        elif self.vel.y>0:
             self.playanimation("fall")
         else:
             self.playanimation("default")
@@ -76,3 +99,5 @@ class Player(Entity):
 class Enemy(Entity):
     def __init__(self, gamevar, x, y, width=0, height=0, image="placeholder.png", animationfile=None, scale=1, health=20):
         super().__init__(gamevar, x, y, width, height, image, animationfile, scale, health)
+
+        self.target = None 

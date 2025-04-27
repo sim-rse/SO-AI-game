@@ -2,8 +2,8 @@ import pygame
 from main import Object
 
 class Button(Object):
-	def __init__(self, x, y, text, width = 100, height = 50, image = None):
-		super().__init__(x,y,width,height,image, isStatic = True)
+	def __init__(self, gamevar, x, y, text, width = 100, height = 50, image = None):
+		super().__init__(gamevar,x,y,width,height,image)
 		self.text = text
 
 	def clicked(self):
@@ -13,7 +13,24 @@ class Button(Object):
 		hitbox = self.hitbox
 		if (mouse[0]>hitbox["top"] and mouse[0]<hitbox["bottom"]) and (mouse[1]<hitbox["right"] and mouse[1]>hitbox["left"]):
 			self.clicked()
-		
+
+class SceneButton(Button):
+	def __init__(self, gamevar, x, y, text, newScene, width=100, height=50, image=None):
+		super().__init__(gamevar, x, y, text, width, height, image)
+		self.newScene = newScene
+	
+	def clicked(self):
+		self.gamevar.scene_running = False
+		self.gamevar.scene = self.newScene
+
+class CharacterSelectButton(Button):
+	def __init__(self, gamevar, x, y, text, width=100, height=50, image=None):
+		super().__init__(gamevar, x, y, text, width, height, image)
+
+	
+
+
+
 class Game():
 	def __init__(self):
 		self.running = True

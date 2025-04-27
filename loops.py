@@ -12,8 +12,9 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
     color = (100,255,255)
 
     player = Player(game,50,50,width=50,height=50, animationfile = "test.json", scale = 2)
+    projectile = Projectile(game, 50, 50, target=pygame.math.Vector2(300,300))
     ground = Object(game, 0,game.screen_height*0.8, width=game.screen_width, height=200,color = (0,100,0))
-    objects = [player, ground, Object(game, 120,game.screen_height*0.8-30, width=50, height=30), Object(game, 400,game.screen_height*0.8-80, width=200, height=30),Object(game, 520,525, width=100, height=100) ]
+    objects = [player, ground, projectile, Object(game, 120,game.screen_height*0.8-30, width=50, height=30), Object(game, 400,game.screen_height*0.8-80, width=200, height=30),Object(game, 520,525, width=100, height=100) ]
     entities = [player]
     gravity = True
 
@@ -40,24 +41,24 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
                 case pygame.KEYDOWN:
                     if event.key == pygame.K_F5:        #zwaartekracht toggelen
                         if gravity:
+                            game.gravity = 0
                             for obj in objects:
-                                obj.accY = 0
-                                obj.velY = 0
+                                if not obj.static and obj.affected_by_gravity:
+                                    obj.acc.y = 0
+                                    obj.vel.y = 0
                             gravity = False
                         else:
-                            for obj in objects:
-                                if not obj.static:
-                                    obj.accY = 1
+                            game.gravity = 1
                             gravity = True
                     if event.key == pygame.K_F6:
                         for obj in objects:
                             if not obj.static:
-                                obj.Y = 50
+                                obj.pos.y = 50
                     if event.key == pygame.K_F7:
                         game.scene_running = False
 
                     key = pygame.key.name(event.key)
-                    if len(keys)>=8:        #sought hash is 6855703423273221168
+                    if len(keys)>=8:
                         keys.pop(0)
                         keys.append(key)
                     else:
@@ -79,7 +80,7 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
             otherobjects = [i for i in objects if i != obj]
             obj.update(otherobjects)       #updaten van het object zelf en een lijst van alle andere objecten doorgeven
 
-        label = font.render(f"Player position   x: {round(player.X,2)} y: {round(player.Y,2)}", 1, (0,0,0))
+        label = font.render(f"Player position   x: {round(player.pos.x,2)} y: {round(player.pos.y,2)}", 1, (0,0,0))
         screen.blit(label, (20, 20))
 
         pygame.display.flip()
