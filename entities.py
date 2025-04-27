@@ -41,7 +41,7 @@ class Projectile(Entity):
         self.explosionrange = 5
         self.flyspeed = 2
         self.target = target.normalize()
-        self.gravity = 0
+        self.affected_by_gravity = 0
         
 
         self.vel.x = self.target.x*self.flyspeed

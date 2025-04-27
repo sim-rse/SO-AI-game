@@ -1,9 +1,8 @@
 [
     {
-        "spritesheet": "luigi.png",
-        "width":15,
-        "height":22,
-        "colorkey":[255,0,220],
+        "spritesheet": "images\\main.png",
+        "width":16,
+        "height":20,
         "animations":{
             "default":{
                 "loop": true,
@@ -22,17 +21,25 @@
             "fall":{
                 "loop": true,
                 "frames": 1,
-                "column":3,
-                "row":0,
-                "direction":"x"
-            },
-            "jump":{
-                "loop": true,
-                "frames": 1,
                 "column":2,
                 "row":0,
                 "direction":"x"
             }
+        }
+    },
+    {
+        "spritesheet": "images\\jump.png",
+        "width":16,
+        "height":22,
+        "animations":{
+            "jump":{
+                "loop": true,
+                "frames": 1,
+                "column":0,
+                "row":0,
+                "direction":"x"
+            }
+
         }
     }
 ]

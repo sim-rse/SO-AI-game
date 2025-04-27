@@ -106,7 +106,7 @@ class MovingObject(Object):
         
         self.collisionsEnabled = hasCollisionEnabled
         self.affected_by_gravity = affected_by_gravity  #heeft zwaartekracht invloed
-        self.gravity = gamevar.gravity          #sterkte van de zwaartekracht (kan ook op 0 worden ingesteld, dan is er momenteel geen zwaartekracht)
+        #self.gravity = self.gamevar.gravity          #sterkte van de zwaartekracht (kan ook op 0 worden ingesteld, dan is er momenteel geen zwaartekracht)
 
         self.onGround = False
     
@@ -128,8 +128,7 @@ class MovingObject(Object):
                     self.vel.x = 0
 
         # dan de y as
-
-        self.vel.y += (self.acc.y+self.gravity)*dt
+        self.vel.y += (self.acc.y+self.gamevar.gravity)*dt
         self.pos.y += self.vel.y*dt
         
         self.onGround = False #neemt aan dat de object niet op de grond is, maar als er wel vanonder collision is wordt het wel als op de grond beschouwd (zie enkele lijnen onder)
@@ -173,6 +172,6 @@ class MovingObject(Object):
             return False
         
     def update(self, otherObjects):
-        
+        print(self.gravity)
         self.updatePos(otherObjects)
         super().update()

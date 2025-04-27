@@ -11,12 +11,12 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
     keys = []
     color = (100,255,255)
 
-    player = Player(game,50,50,width=50,height=50, animationfile = "test.json", scale = 2)
+    player = Player(game,50,50,width=50,height=50, animationfile = "animations/test.json", scale = 2)
     projectile = Projectile(game, 50, 50, target=pygame.math.Vector2(300,300))
     ground = Object(game, 0,game.screen_height*0.8, width=game.screen_width, height=200,color = (0,100,0))
     objects = [player, ground, projectile, Object(game, 120,game.screen_height*0.8-30, width=50, height=30), Object(game, 400,game.screen_height*0.8-80, width=200, height=30),Object(game, 520,525, width=100, height=100) ]
     entities = [player]
-    gravity = True
+    grav = True
 
     font = pygame.font.SysFont("monospace", 15)
 
@@ -40,16 +40,16 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
                     game.running = False
                 case pygame.KEYDOWN:
                     if event.key == pygame.K_F5:        #zwaartekracht toggelen
-                        if gravity:
-                            game.gravity = 0
+                        if grav:
+                            game.gravity = 0.1
                             for obj in objects:
                                 if not obj.static and obj.affected_by_gravity:
                                     obj.acc.y = 0
                                     obj.vel.y = 0
-                            gravity = False
+                            grav = False
                         else:
                             game.gravity = 1
-                            gravity = True
+                            grav = True
                     if event.key == pygame.K_F6:
                         for obj in objects:
                             if not obj.static:
@@ -67,7 +67,7 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
                     patat = hashlib.md5(str(keys).encode())
                     if str(patat.hexdigest()) == "97bd60a0f2d7cd76cf49e96e69d8996d":
                         color = (0,255,255)
-                        player.loadAnimations("luigi.json",scale=2)
+                        player.loadAnimations("animations\\luigi.json",scale=2)
                     #print(f"str keys is: {str(keys)} and hash is: {patat.hexdigest()}")
                 case pygame.KEYUP:
                     pass
