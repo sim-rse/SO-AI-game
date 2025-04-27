@@ -6,7 +6,7 @@ from spritesheet import Spritesheet
 from animations import Animations
 
 class Object:
-    def __init__(self, gamevar, x, y, width = 0, height = 0, image = None, color = 'blue', animationfile = None, scale = 1):
+    def __init__(self, gamevar, x, y, width = 0, height = 0, image = None, color = 'blue', animationfile = None, scale = 1):        #image geeft een pad naar de afbeeldin, color = Als er geen afbeelding is, maak een gekleurd vierkant.
         self.gamevar = gamevar
 
         self.pos = pygame.math.Vector2(x,y)     #positie
@@ -35,10 +35,10 @@ class Object:
             print(f"filled surface with color: {color}")
 
         self.flipSprite = False #wordt bij bv de speler gebruikt om een naar links kijkende animaties te maken uit naar rechts kijkende sprites
-    
+        #Als True, dan wordt het plaatje gespiegeld
         
 
-    @property
+    @property   #Je hoeft self.width en self.height niet zelf bij te houden, dat komt van het plaatje (texture).
     def width(self):
         return self.texture.get_width()
     
@@ -52,44 +52,45 @@ class Object:
     
     def blit(self):
         screen = self.gamevar.screen
-        if self.flipSprite:
+        if self.flipSprite:             #Als flipSprite aanstaat, wordt het plaatje horizontaal gespiegeld, Anders tekenen we het gewoon normaal op het scherm.
             screen.blit(pygame.transform.flip(self.texture, True, False), (self.pos.x, self.pos.y))
         else:
             screen.blit(self.texture, (self.pos.x, self.pos.y)) #bij fotos werkt het licht anders dan bij vormen ma doet hetzelfde als pygame.draw.rect(...) bijvoorbeeld
     
     def update(self,otherobjects = None):
         
-        if self.animated:
-            self.animationHandler()
+        if self.animated:                   # als het object een animatie heeft: 
+            self.animationHandler()         #de animatie geüpdatet,het juiste frame gekozen,en getekend op het scherm.
             self.animations.update()
             self.texture = self.animations.image
         self.blit()
         
     def loadAnimations(self, file, scale=1):       #scale verandert de groote van alle frames met factor scale, wordt gebruikt door  de makeAnimation() methode
-        with open(file) as f:
+                                    #Functie om animaties te laden uit een JSON-bestand;
+        with open(file) as f:       #Opent het bestand (meestal een .json) dat animatiegegevens bevat
             data = json.load(f)
 
         for sheet in data:
             print(f"[info: sheet] {sheet}")
             colorkey = checkDict(sheet,"colorkey", (0,0,0))     #checks if the key existx in the dict. if it does then that value will be used, otherwise it takes the third argument as default one  
-            spritesheet = Spritesheet(path = sheet["spritesheet"], width = sheet["width"], height = sheet["height"], colorkey = tuple(colorkey))
+            spritesheet = Spritesheet(path = sheet["spritesheet"], width = sheet["width"], height = sheet["height"], colorkey = tuple(colorkey))        #Maakt een nieuw Spritesheet-object aan
 
             for animation_name, animation_data in sheet["animations"].items():       #zonder de .items() krijg je alleen de namen van de keys en niet hun waarden erbij
                 #print(animation_name, animation_data)
 
-                temp_scale = checkDict(animation_data,"scale", scale)
-                anim = spritesheet.makeAnimation(frames=animation_data["frames"],column=animation_data["column"], row=animation_data["row"], direction=animation_data["direction"], scale = temp_scale)
-                next = checkDict(animation_data, "next", None)
-                loop = checkDict(animation_data, "loop", False)
-                self.animations.load(name = animation_name, animation = anim, loop = loop, next=next)     #next is ook (onnodige) een functie, dus ideaal de naam veranderen in de toekomst
+                temp_scale = checkDict(animation_data,"scale", scale)                # Haalt de schaalfactor op uit de data, of gebruikt standaard 'scale' parameter
+                anim = spritesheet.makeAnimation(frames=animation_data["frames"],column=animation_data["column"], row=animation_data["row"], direction=animation_data["direction"], scale = temp_scale)     # deze maakt een lijst van frames voor de animaties 
+                next = checkDict(animation_data, "next", None)  #Welke animatie moet erna komen (optioneel)
+                loop = checkDict(animation_data, "loop", False) # Moet de animatie in een lus herhalen? (True/False)
+                self.animations.load(name = animation_name, animation = anim, loop = loop, next=next)     #next is ook een (onnodige) functie, dus ideaal de naam veranderen in de toekomst
     
-    def playanimation(self, animation):
+    def playanimation(self, animation):     # Speelt een bepaalde animatie af
         self.animations.play(animation)
 
-    def updateAnimation(self):
+    def updateAnimation(self):           #we hebben die twee hier nodig om errors te vermijden, ze worden echter bij child klassen gebruikt
         pass
 
-    def animationHandler(self):
+    def animationHandler(self):        
         pass
 
 class MovingObject(Object):

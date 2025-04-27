@@ -1,12 +1,12 @@
-import time
-from rich import print
+import time #tijd importeren zodat ze weten wat een seconde is 
+from rich import print #het is een speciale printfunctie die met kleuren print
 class Animations():
     def __init__(self):
         self.current = Animation('None animation', [None], False)       #current heeft een animatie nodig, dus er wordt een dummy animatie gemaakt zolang er geen nieuwe wordt afgespeeld
         #print("[blue]Current zou hier een keer moeten worden gemaakt")
         self.frame = 0
 
-        self.fps = 15
+        self.fps = 15   # hoeveel frames per seconde
         self.lastFrameTime = 0
 
         self.animations = {}
@@ -17,8 +17,8 @@ class Animations():
 
     def play(self, name, frame=0):
         if self.current.name == name:
-            pass
-        elif name in self.animations:
+            pass                        # de animatie speelt al dus niks doen
+        elif name in self.animations:   #als het niet speelt dan start hij een animatie als het bestaat
             self.current = self.animations[name]
             #print(f"[[yellow]I[/yellow]] Nieuwe self.current: {self.current}")
             self.frame = frame
@@ -28,7 +28,7 @@ class Animations():
         else:
             print(f"[red]Animation: {name} not found!")
 
-    def load(self, name:str, animation:list, loop = False, next = None):
+    def load(self, name:str, animation:list, loop = False, next = None):    # deze laadt een animatie en geeft het een naam
         if self.animations == {} or name == "default":
             self.setDefault(name)
         self.animations[name] = Animation(name, animation, loop)
@@ -46,7 +46,7 @@ class Animations():
             self.image = self.current.frames[self.frame]
             self.lastFrameTime = time.time()
 
-    def setDefault(self, name):
+    def setDefault(self, name):         #Hiermee kun je instellen wat de standaard animatie is Bijvoorbeeld: als er niks gebeurt, toon dan "default".
         self.default = name
     
 class Animation():
