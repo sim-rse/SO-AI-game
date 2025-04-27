@@ -2,8 +2,8 @@ import pygame
 from objects import Object, MovingObject
 
 class Entity(MovingObject):
-    def __init__(self, gamevar, x, y, width = 0, height = 0, image = "placeholder.png", animationfile = None, scale = 1, health = 20):
-        super().__init__(gamevar, x, y, width, height, image, hasCollisionEnabled=True, affected_by_gravity=True, animationfile = animationfile, scale = scale)
+    def __init__(self, game, x, y, width = 0, height = 0, image = "placeholder.png", animationfile = None, scale = 1, health = 20):
+        super().__init__(game, x, y, width, height, image, hasCollisionEnabled=True, affected_by_gravity=True, animationfile = animationfile, scale = scale)
 
         self.health = health
         self.strength = 2
@@ -26,7 +26,7 @@ class Entity(MovingObject):
             otherEntity.getDamage(self.strength)
         
     def shoot(self):
-        self.gamevar.add(Projectile())
+        self.game.add(Projectile())
 
 
     def update(self, otherObjects):
@@ -35,8 +35,8 @@ class Entity(MovingObject):
             self.die()
 
 class Projectile(Entity):
-    def __init__(self, gamevar, x, y, width=0, height=0, image="placeholder.png", animationfile=None, scale=1, health=20, target = pygame.math.Vector2(0,0)):
-        super().__init__(gamevar, x, y, width, height, image, animationfile, scale, health)
+    def __init__(self, game, x, y, width=0, height=0, image="placeholder.png", animationfile=None, scale=1, health=20, target = pygame.math.Vector2(0,0)):
+        super().__init__(game, x, y, width, height, image, animationfile, scale, health)
 
         self.explosionrange = 5
         self.flyspeed = 2
@@ -49,14 +49,14 @@ class Projectile(Entity):
 
     def die(self):
         super().die()
-        for ent in self.gamevar.enitites:
+        for ent in self.game.enitites:
             if ent.collidesWith(self, range_ = self.explosionrange):
                 ent.getDamage(self.strength)
 
 
 class Player(Entity):
-    def __init__(self, gamevar, x, y, width = 0, height = 0, image = "placeholder.png", animationfile = None, scale = 1):
-        super().__init__(gamevar, x, y, width, height, image, animationfile, scale)
+    def __init__(self, game, x, y, width = 0, height = 0, image = "placeholder.png", animationfile = None, scale = 1):
+        super().__init__(game, x, y, width, height, image, animationfile, scale)
         self.walkSpeed = 10
         #later komen de states en abilities hier
 
@@ -97,7 +97,7 @@ class Player(Entity):
         super().update(otherObjects)
 
 class Enemy(Entity):
-    def __init__(self, gamevar, x, y, width=0, height=0, image="placeholder.png", animationfile=None, scale=1, health=20):
-        super().__init__(gamevar, x, y, width, height, image, animationfile, scale, health)
+    def __init__(self, game, x, y, width=0, height=0, image="placeholder.png", animationfile=None, scale=1, health=20):
+        super().__init__(game, x, y, width, height, image, animationfile, scale, health)
 
         self.target = None 

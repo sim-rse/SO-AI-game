@@ -1,6 +1,7 @@
 import pygame, time, hashlib
 from entities import *
 from objects import *
+from healthbar import healthbar
 
 clock = pygame.time.Clock()
 
@@ -15,6 +16,7 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
     projectile = Projectile(game, 50, 50, target=pygame.math.Vector2(300,300))
     ground = Object(game, 0,game.screen_height*0.8, width=game.screen_width, height=200,color = (0,100,0))
     objects = [player, ground, projectile, Object(game, 120,game.screen_height*0.8-30, width=50, height=30), Object(game, 400,game.screen_height*0.8-80, width=200, height=30),Object(game, 520,525, width=100, height=100) ]
+    UI = [healthbar(player, game, width=30)]
     entities = [player]
     grav = True
 
@@ -79,7 +81,8 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
         for obj in objects:
             otherobjects = [i for i in objects if i != obj]
             obj.update(otherobjects)       #updaten van het object zelf en een lijst van alle andere objecten doorgeven
-
+        for i in UI:
+            i.update()
         label = font.render(f"Player position   x: {round(player.pos.x,2)} y: {round(player.pos.y,2)}", 1, (0,0,0))
         screen.blit(label, (20, 20))
 

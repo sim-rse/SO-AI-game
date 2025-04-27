@@ -6,8 +6,8 @@ from spritesheet import Spritesheet
 from animations import Animations
 
 class Object:
-    def __init__(self, gamevar, x, y, width = 0, height = 0, image = None, color = 'blue', animationfile = None, scale = 1):        #image geeft een pad naar de afbeeldin, color = Als er geen afbeelding is, maak een gekleurd vierkant.
-        self.gamevar = gamevar
+    def __init__(self, game, x, y, width = 0, height = 0, image = None, color = 'blue', animationfile = None, scale = 1):        #image geeft een pad naar de afbeeldin, color = Als er geen afbeelding is, maak een gekleurd vierkant.
+        self.game = game
 
         self.pos = pygame.math.Vector2(x,y)     #positie
 
@@ -51,7 +51,7 @@ class Object:
         return {"top":self.pos.y,"bottom":self.pos.y+self.height,"left":self.pos.x,"right":self.pos.x+self.width}
     
     def blit(self):
-        screen = self.gamevar.screen
+        screen = self.game.screen
         if self.flipSprite:             #Als flipSprite aanstaat, wordt het plaatje horizontaal gespiegeld, Anders tekenen we het gewoon normaal op het scherm.
             screen.blit(pygame.transform.flip(self.texture, True, False), (self.pos.x, self.pos.y))
         else:
@@ -94,8 +94,8 @@ class Object:
         pass
 
 class MovingObject(Object):
-    def __init__(self, gamevar, x, y, width=0, height=0, image=None, hasCollisionEnabled=False, affected_by_gravity=True, color='blue', animationfile=None, scale=1):
-        super().__init__(gamevar, x, y, width, height, image, color, animationfile, scale)
+    def __init__(self, game, x, y, width=0, height=0, image=None, hasCollisionEnabled=False, affected_by_gravity=True, color='blue', animationfile=None, scale=1):
+        super().__init__(game, x, y, width, height, image, color, animationfile, scale)
 
         self.velX = 0           
         self.velY = 0
@@ -103,15 +103,22 @@ class MovingObject(Object):
         self.acc = pygame.math.Vector2(0,0)           #acceleratie
 
         self.static = False
-        
+        self.gravity = self.game.gravity
         self.collisionsEnabled = hasCollisionEnabled
         self.affected_by_gravity = affected_by_gravity  #heeft zwaartekracht invloed
-        #self.gravity = self.gamevar.gravity          #sterkte van de zwaartekracht (kan ook op 0 worden ingesteld, dan is er momenteel geen zwaartekracht)
+        self._gravity = self.game.gravity          #sterkte van de zwaartekracht (kan ook op 0 worden ingesteld, dan is er momenteel geen zwaartekracht)
 
         self.onGround = False
+
+    """@property
+    def gravity(self):
+        return self.game.gravity
+    @property.setter
+    def gravity(self):
+        pass"""
     
     def updatePos(self, otherObjects):
-        dt = self.gamevar.dt        #tijdsverschil tussen de frames in seconden om beweging onafhankelijk van de fps te maken (voorlopig heb ik het op 1 gezet want de game was anders veel te traag)
+        dt = self.game.dt        #tijdsverschil tussen de frames in seconden om beweging onafhankelijk van de fps te maken (voorlopig heb ik het op 1 gezet want de game was anders veel te traag)
        
         # Eerst kijken naar de x as
         self.vel.x += self.acc.x*dt  #nieuwe snelheid en positie
@@ -128,7 +135,7 @@ class MovingObject(Object):
                     self.vel.x = 0
 
         # dan de y as
-        self.vel.y += (self.acc.y+self.gamevar.gravity)*dt
+        self.vel.y += (self.acc.y+self.game.gravity)*dt
         self.pos.y += self.vel.y*dt
         
         self.onGround = False #neemt aan dat de object niet op de grond is, maar als er wel vanonder collision is wordt het wel als op de grond beschouwd (zie enkele lijnen onder)
@@ -172,6 +179,5 @@ class MovingObject(Object):
             return False
         
     def update(self, otherObjects):
-        print(self.gravity)
         self.updatePos(otherObjects)
         super().update()
