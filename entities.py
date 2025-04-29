@@ -7,6 +7,8 @@ class Entity(MovingObject):
 
         self.health = health
         self.strength = 2
+
+        self.target = None
     
     def die(self):
         self.playanimation("die")
@@ -29,29 +31,36 @@ class Entity(MovingObject):
         self.game.add(Projectile())
 
 
-    def update(self, otherObjects):
-        super().update(otherObjects)        #doet wat de update van de parent doet plus wat hieronder staat
+    def update(self):
+        super().update()        #doet wat de update van de parent doet plus wat hieronder staat
         if self.health <= 0: 
             self.die()
 
 class Projectile(Entity):
-    def __init__(self, game, x, y, width=0, height=0, image="placeholder.png", animationfile=None, scale=1, health=20, target = pygame.math.Vector2(0,0)):
+    def __init__(self, game, x, y, width=0, height=0, image="placeholder.png", animationfile=None, scale=1, health=20, target = None):
         super().__init__(game, x, y, width, height, image, animationfile, scale, health)
 
         self.explosionrange = 5
         self.flyspeed = 2
-        self.target = target.normalize()
+        if target:
+            self.target = target.normalize()
         self.affected_by_gravity = 0
         
+        self.collider = False
 
         self.vel.x = self.target.x*self.flyspeed
         self.vel.y = self.target.y*self.flyspeed
 
     def die(self):
         super().die()
-        for ent in self.game.enitites:
+        for ent in self.game.entities:
             if ent.collidesWith(self, range_ = self.explosionrange):
                 ent.getDamage(self.strength)
+
+    def update(self):
+        self.updatePos()
+        self.blit()
+
 
 
 class Player(Entity):
@@ -92,9 +101,9 @@ class Player(Entity):
         else:
             self.playanimation("default")
         
-    def update(self,otherObjects):
+    def update(self):
         self.getKeyPress()
-        super().update(otherObjects)
+        super().update()
 
 class Enemy(Entity):
     def __init__(self, game, x, y, width=0, height=0, image="placeholder.png", animationfile=None, scale=1, health=20):

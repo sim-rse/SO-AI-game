@@ -1,6 +1,8 @@
 #coole sprites ma geen stap animatie: https://diegosanches.com/science-kombat (scroll naar beneden)
 import pygame
 from loops import gameLoop
+from objects import *
+from entities import *
 pygame.init()
 
 class Game():
@@ -16,6 +18,48 @@ class Game():
         self.gravity = 1
 
         self.debugging = False
+
+        self.objects = []
+        self.UI = []
+
+    def add(self,obj):
+        if type(obj) == list:
+            for i in obj:
+                self.objects.append(i)
+        else:
+            self.objects.append(obj)
+
+    def remove(self,obj):
+        if type(obj) == list:
+            for i in obj:
+                self.objects.remove(i)
+        else:
+            self.objects.remove(obj)
+    def empty(self):
+        self.objects = []
+        self.UI = []
+    def add_UI(self,obj):
+        if type(obj) == list:
+            for i in obj:
+                self.UI.append(i)
+        else:
+            self.UI.append(obj)
+    
+    def remove_UI(self,obj):
+        if type(obj) == list:
+            for i in obj:
+                self.UI.remove(i)
+        else:
+            self.UI.remove(obj)
+    
+    @property
+    def entities(self):
+        return [ent for ent in self.objects if isinstance(ent, Entity)]
+    
+    @property
+    def colliders(self):
+        return [obj for obj in self.objects if obj.collider]
+    
     @property
     def screen_width(self):
         return self.screen.get_width()

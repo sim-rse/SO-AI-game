@@ -2,12 +2,14 @@ import pygame, time, hashlib
 from entities import *
 from objects import *
 from healthbar import healthbar
+from buttons import Button
 
 clock = pygame.time.Clock()
 
 def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (een voor de menu een voor de startscreen en dan een voor het spel)
     screen = game.screen
     game.scene_running = True
+    #game.empty()
 
     keys = []
     color = (100,255,255)
@@ -16,13 +18,15 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
     projectile = Projectile(game, 50, 50, target=pygame.math.Vector2(300,300))
     ground = Object(game, 0,game.screen_height*0.8, width=game.screen_width, height=200,color = (0,100,0))
     objects = [player, ground, projectile, Object(game, 120,game.screen_height*0.8-30, width=50, height=30), Object(game, 400,game.screen_height*0.8-80, width=200, height=30),Object(game, 520,525, width=100, height=100) ]
-    UI = [healthbar(player, game, width=30)]
+    UI = [healthbar(player, game, width=30),Button(game,800,100,"test")]
     entities = [player]
+
+    game.add(objects)
+    game.add_UI(UI)
+
     grav = True
 
     font = pygame.font.SysFont("monospace", 15)
-
-    
 
     last_time = time.time()
     while game.scene_running and game.running:
@@ -78,11 +82,13 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
                     mouse = pygame.mouse.get_pos()
 
         screen.fill(color=color)
-        for obj in objects:
-            otherobjects = [i for i in objects if i != obj]
-            obj.update(otherobjects)       #updaten van het object zelf en een lijst van alle andere objecten doorgeven
-        for i in UI:
+
+        for obj in game.objects:
+            #otherobjects = [i for i in objects if i != obj]
+            obj.update()       #updaten van het object zelf en een lijst van alle andere objecten doorgeven
+        for i in game.UI:
             i.update()
+            
         label = font.render(f"Player position   x: {round(player.pos.x,2)} y: {round(player.pos.y,2)}", 1, (0,0,0))
         screen.blit(label, (20, 20))
 

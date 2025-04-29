@@ -13,7 +13,8 @@ class Object:
 
         self.animated = False
         self.static = True
-
+        self.collider = True        #is het voor de anderen als een vast object beschouwd (of de collisions voor deze object enabled zijn wordt in MovinObject ingesteld)
+        
         if animationfile:
             self.animated = True
             print(f"animating {self}")
@@ -117,9 +118,10 @@ class MovingObject(Object):
     def gravity(self):
         pass"""
     
-    def updatePos(self, otherObjects):
+    def updatePos(self, otherObjects=None):
         dt = self.game.dt        #tijdsverschil tussen de frames in seconden om beweging onafhankelijk van de fps te maken (voorlopig heb ik het op 1 gezet want de game was anders veel te traag)
-       
+        otherObjects = [obj for obj in self.game.colliders if not obj == self]
+
         # Eerst kijken naar de x as
         self.vel.x += self.acc.x*dt  #nieuwe snelheid en positie
         self.pos.x += self.vel.x*dt
@@ -178,6 +180,6 @@ class MovingObject(Object):
         else:
             return False
         
-    def update(self, otherObjects):
-        self.updatePos(otherObjects)
+    def update(self):
+        self.updatePos()
         super().update()
