@@ -2,14 +2,14 @@ import pygame, time, hashlib
 from entities import *
 from objects import *
 from healthbar import healthbar
-from buttons import Button
+from buttons import SceneButton
 
 clock = pygame.time.Clock()
 
 def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (een voor de menu een voor de startscreen en dan een voor het spel)
     screen = game.screen
     game.scene_running = True
-    #game.empty()
+    game.empty()
 
     keys = []
     color = (100,255,255)
@@ -18,7 +18,7 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
     projectile = Projectile(game, 50, 50, target=pygame.math.Vector2(300,300))
     ground = Object(game, 0,game.screen_height*0.8, width=game.screen_width, height=200,color = (0,100,0))
     objects = [player, ground, projectile, Object(game, 120,game.screen_height*0.8-30, width=50, height=30), Object(game, 400,game.screen_height*0.8-80, width=200, height=30),Object(game, 520,525, width=100, height=100) ]
-    UI = [healthbar(player, game, width=30),Button(game,800,100,"test")]
+    UI = [healthbar(player, game, width=30),SceneButton(game,800,100,"test","test_scene", border_color=(0,0,0))]
     entities = [player]
 
     game.add(objects)
@@ -30,13 +30,15 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
 
     last_time = time.time()
     while game.scene_running and game.running:
-        clock.tick(60)
+        clock.tick(game.fps)
+
         # delta time
         dt = time.time() - last_time
         last_time = time.time()
         if dt==0: fps = 0
         else: fps = 1/dt
         #game.dt = dt
+        
         if game.debugging:
             pygame.display.set_caption(f"fps: {str(fps)}")
 
@@ -92,4 +94,31 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
         label = font.render(f"Player position   x: {round(player.pos.x,2)} y: {round(player.pos.y,2)}", 1, (0,0,0))
         screen.blit(label, (20, 20))
 
+        pygame.display.flip()
+
+def test_menu(game):
+    game.empty()
+    game.scene_running = True
+    screen = game.screen
+    game.scene_running = True
+    game.empty()
+    color = (0,0,0)
+
+    UI = [SceneButton(game,100,200,"Back to game","default",width=100,height=30)]
+
+    game.add_UI(UI)
+    while game.running and game.scene_running:
+        clock.tick(game.fps)
+        screen.fill(color)
+        
+
+        for event in pygame.event.get():
+            match event.type: 
+                case pygame.QUIT:
+                    game.running = False
+        
+        for ui in UI:
+            ui.update()
+        
+        
         pygame.display.flip()

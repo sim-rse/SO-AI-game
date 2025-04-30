@@ -1,6 +1,6 @@
 #coole sprites ma geen stap animatie: https://diegosanches.com/science-kombat (scroll naar beneden)
 import pygame
-from loops import gameLoop
+from loops import *
 from objects import *
 from entities import *
 pygame.init()
@@ -10,6 +10,7 @@ class Game():
         self.screen = screen
         self.dt = 1
         self.window_scale = 1
+        self.fps = 60
 
         self.running = True
 
@@ -35,9 +36,12 @@ class Game():
                 self.objects.remove(i)
         else:
             self.objects.remove(obj)
-    def empty(self):
+
+    def empty(self, keepUI = False):
         self.objects = []
-        self.UI = []
+        if not keepUI:
+            self.UI = []
+
     def add_UI(self,obj):
         if type(obj) == list:
             for i in obj:
@@ -55,6 +59,10 @@ class Game():
     @property
     def entities(self):
         return [ent for ent in self.objects if isinstance(ent, Entity)]
+    
+    @property
+    def players(self):
+        return [obj for obj in self.objects if isinstance(obj, Player)]
     
     @property
     def colliders(self):
@@ -82,4 +90,6 @@ while game.running:
     match game.scene:
         case "default":
             gameLoop(game)
+        case "test_scene":
+            test_menu(game)
 pygame.quit()
