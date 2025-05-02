@@ -3,14 +3,16 @@ from objects import Object, MovingObject
 from queue import PriorityQueue
 
 class Entity(MovingObject):
-    def __init__(self, game, x, y, width = 0, height = 0, image = "placeholder.png", animationfile = None, scale = 1, health = 20):
-        super().__init__(game, x, y, width, height, image, hasCollisionEnabled=True, affected_by_gravity=True, animationfile = animationfile, scale = scale)
+    def __init__(self, game, x, y, width = 0, height = 0, image = "placeholder.png", animationfile = None, scale = 1, health = 20, center = None):
+        super().__init__(game, x, y, width, height, image, hasCollisionEnabled=True, affected_by_gravity=True, animationfile = animationfile, scale = scale, center = center)
 
         self.health = health
         self.strength = 2
 
         self.target = None
         self.list_of_targets = PriorityQueue()
+
+        self.collider = False
     
     def die(self):
         self.playanimation("die")
@@ -29,7 +31,7 @@ class Entity(MovingObject):
             otherEntity.getDamage(self.strength)
         
     def shoot(self,target):
-        self.game.add(Projectile(self.game, self.pos.x, self.pos.y, target = target))
+        self.game.add(Projectile(self.game, self.pos.x, self.pos.y, target = target, owner=self, exploding=True))
 
     def update(self):
         super().update()        #doet wat de update van de parent doet plus wat hieronder staat
@@ -67,6 +69,8 @@ class Projectile(Entity):
             self.game.add(Explosion(self.game, self.pos.x, self.pos.y, explosionrange = self.explosionrange, center=self.center))    #creert een explosie in het centrum van de projectile
         self.game.remove(self)
         
+    """def getDamage(self, damage):
+        self.die()"""
 
     def update(self):
         self.updatePos()
@@ -81,27 +85,39 @@ class Projectile(Entity):
         self.blit()
 
 class Explosion(Entity):
-    def __init__(self, game, x, y, scale=1, center=None, explosionrange = 0, strength = 0):
-        super().__init__(game, x, y, scale = scale, center=center)#, animationfile = "animations/explosion.png"
+    def __init__(self, game, x, y, scale=1, center=None, explosionrange = 100, strength = 0):
+        super().__init__(game, x, y, scale = scale, animationfile = "animations/explosion.json", center=center)
         self.playanimation("explosion")
         self.static = True
         self.explosionrange = explosionrange
         self.strength = strength
+        self.collisionsEnabled = False
+        self.affected_by_gravity = False
+
         for ent in self.game.entities:
             if ent.collideswith(self, range_ = self.explosionrange):        #als de explosionrange 0 is krijgen enkel de geraakte entities damage (zoals bij kogels ofz)
                 ent.getDamage(self.strength)
 
-                knockback_direction = pygame.math.Vector2(ent.pos.x - self.pos.x,ent.pos.y-self.pos.y).normalize()
-                ent.vel = knockback_direction*self.strength*2*(10/self.getDistanceFrom(ent))
+                knockback_direction = pygame.math.Vector2(ent.pos.x - self.pos.x,ent.pos.y-self.pos.y)
+                if not knockback_direction.xy == (0,0):
+                    knockback_direction.normalize_ip()      #normaliseert de vector als het niet 0 is
 
-    
+                ent.vel = knockback_direction*self.strength*2       #*(10/self.getDistanceFrom(ent))
         
+    def update(self):
+        super().update()
+        if self.animations.current == "default":        #als de explosion animation af is gaat het weer naar default (lege animatie) als het zo is kan de explosion weg 
+            self.die()
+
+    def die(self):
+        self.game.remove(self)
 
 class Player(Entity):
     def __init__(self, game, x, y, width = 0, height = 0, image = "placeholder.png", animationfile = None, scale = 1):
         super().__init__(game, x, y, width, height, image, animationfile, scale)
         self.walkSpeed = 10
-        #later komen de states en abilities hier
+        self.shoot_key_hold = False
+        self.sneaking = False
 
     def getKeyPress(self):
         keys = pygame.key.get_pressed()
@@ -118,7 +134,9 @@ class Player(Entity):
         if keys[pygame.K_UP]:
             self.jump()                 #te vinden bij Entity class
         if keys[pygame.K_DOWN]:
-            pass
+            self.sneaking = True
+        else:
+            self.sneaking = False
         if keys[pygame.K_SPACE]:
             self.punch()
         self.smoothSpeedChange(accel[0])        #indien we deze methode gebruiken blijft de speler staan indien we zowel links en rechts indrukken, en als je een toets loslaat heb je ook geen problemen met de richting die niet juist kan zijn
@@ -131,7 +149,7 @@ class Player(Entity):
             
             list_of_targets = PriorityQueue()
             for i in [ent for ent in self.game.entities if not ent == self]:
-                list_of_targets.put((self.getDistanceFrom(i), i))
+                list_of_targets.put((self.pos.distance_to(i.pos), i))           #de afstand tussen self en de andere entity wordt als prioriteit gebruikt
             
             self.target = list_of_targets.get()
         else:
@@ -139,20 +157,23 @@ class Player(Entity):
 
             
         if keys[pygame.K_z]:
-            if self.target:
-                target_position = self.target.pos
-            elif self.flipSprite:
-                target_position = pygame.math.Vector2(self.pos.x-1, self.pos.y)
-            else:
-                target_position = pygame.math.Vector2(self.pos.x + self.width + 1, self.pos.y)
-            
-            self.shoot(target_position)
+            if not self.shoot_key_hold:
+                self.shoot_key_hold = True
+                if self.target:
+                    target_position = self.target.pos
+                elif self.flipSprite:
+                    target_position = pygame.math.Vector2(self.pos.x-1, self.pos.y)
+                else:
+                    target_position = pygame.math.Vector2(self.pos.x + self.width + 1, self.pos.y)
 
-            
-
+                self.shoot(target_position)
+        else:
+            self.shoot_key_hold = False
 
     def animationHandler(self):
-        if self.vel.y<0:
+        if self.sneaking:
+            self.playanimation("sneak")
+        elif self.vel.y<0:
             self.playanimation("jump")
         elif self.onGround and self.vel.x !=0:
             self.playanimation("walk")
@@ -169,4 +190,13 @@ class Enemy(Entity):
     def __init__(self, game, x, y, width=0, height=0, image="placeholder.png", animationfile=None, scale=1, health=20):
         super().__init__(game, x, y, width, height, image, animationfile, scale, health)
 
-        self.target = None 
+        print(game)
+
+        self.target = game.players[0]
+        self.walkSpeed = 5
+
+    def update(self):
+        super().update()
+        self.direction = self.target.pos-self.pos
+        self.direction.normalize_ip()
+        self.vel.x = self.walkSpeed*self.direction.x

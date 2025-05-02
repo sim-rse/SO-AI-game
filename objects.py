@@ -17,7 +17,7 @@ class Object:
         
         if animationfile:
             self.animated = True
-            print(f"animating {self}")
+            #print(f"animating {self}")
             self.animations = Animations()
             self.loadAnimations(animationfile,scale)
             self.animations.play('default')
@@ -34,7 +34,7 @@ class Object:
         else:
             self.texture = pygame.Surface((width,height))
             self.texture.fill(color)
-            print(f"filled surface with color: {color}")
+            #print(f"filled surface with color: {color}")
 
         if center:
             self.center = center
@@ -83,14 +83,15 @@ class Object:
             data = json.load(f)
 
         for sheet in data:
-            print(f"[info: sheet] {sheet}")
+            #print(f"[info: sheet] {sheet}")
+            sheet_scale = checkDict(sheet,"scale",scale)      #als er een scale vermeld staat voor de groep animaties (ja, je kunt de scale op letterlijk drie verschillende plekken vermelden, de hardcoded scale (als argument van deze functie) was de eeste en we laten het voorlopig zo. Zoals jullie kunnen zien worden de scales telkens overwritten als er een "preciesere" scale bestaat)
             colorkey = checkDict(sheet,"colorkey", (0,0,0))     #checks if the key existx in the dict. if it does then that value will be used, otherwise it takes the third argument as default one  
             spritesheet = Spritesheet(path = sheet["spritesheet"], width = sheet["width"], height = sheet["height"], colorkey = tuple(colorkey))        #Maakt een nieuw Spritesheet-object aan
 
             for animation_name, animation_data in sheet["animations"].items():       #zonder de .items() krijg je alleen de namen van de keys en niet hun waarden erbij
                 #print(animation_name, animation_data)
 
-                temp_scale = checkDict(animation_data,"scale", scale)                # Haalt de schaalfactor op uit de data, of gebruikt standaard 'scale' parameter
+                temp_scale = checkDict(animation_data,"scale", sheet_scale)                # Haalt de schaalfactor op uit de data, of gebruikt standaard 'scale' parameter
                 anim = spritesheet.makeAnimation(frames=animation_data["frames"],column=animation_data["column"], row=animation_data["row"], direction=animation_data["direction"], scale = temp_scale)     # deze maakt een lijst van frames voor de animaties 
                 next = checkDict(animation_data, "next", None)  #Welke animatie moet erna komen (optioneel)
                 loop = checkDict(animation_data, "loop", False) # Moet de animatie in een lus herhalen? (True/False)
@@ -107,8 +108,8 @@ class Object:
         pass
 
 class MovingObject(Object):
-    def __init__(self, game, x, y, width=0, height=0, image=None, hasCollisionEnabled=False, affected_by_gravity=True, color='blue', animationfile=None, scale=1):
-        super().__init__(game, x, y, width, height, image, color, animationfile, scale)
+    def __init__(self, game, x, y, width=0, height=0, image=None, hasCollisionEnabled=False, affected_by_gravity=True, color='blue', animationfile=None, scale=1, center = None):
+        super().__init__(game, x, y, width, height, image, color, animationfile, scale, center = center)
 
         self.velX = 0           
         self.velY = 0
@@ -196,5 +197,6 @@ class MovingObject(Object):
             return False
         
     def update(self):
-        self.updatePos()
+        if not self.static:     #zou je de movingobject willen freezen ofz
+            self.updatePos()
         super().update()

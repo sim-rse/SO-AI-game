@@ -31,8 +31,8 @@ class Animations():
     def load(self, name:str, animation:list, loop = False, next = None):    # deze laadt een animatie en geeft het een naam
         if self.animations == {} or name == "default":
             self.setDefault(name)
-        self.animations[name] = Animation(name, animation, loop)
-        print(f"[red]Laden van animatie: [green]{name}[/green] met naam van type:[green]{type(name)}[/green] en met lijst: [green]{animation}[/green]\nDit leidt tot vorming van [/red]{self.animations[name]}")
+        self.animations[name] = Animation(name, animation, loop, next)
+        #print(f"[red]Laden van animatie: [green]{name}[/green] met naam van type:[green]{type(name)}[/green] en met lijst: [green]{animation}[/green]\nDit leidt tot vorming van [/red]{self.animations[name]}")
     
     def update(self):
         if time.time() - self.lastFrameTime >= 1/self.fps:
@@ -41,6 +41,7 @@ class Animations():
             elif self.current.loop:
                 self.frame = 0
             elif self.current.next:
+                print(f"playing next animation: {self.current.next}")
                 self.play(self.current.next)
             #print(f"updaten van {self.current} met frames {self.current.frames} op index {self.frame}")
             self.image = self.current.frames[self.frame]

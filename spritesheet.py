@@ -10,7 +10,7 @@ class Spritesheet:                  #getframe van video op youtube gehaald: http
     def getFrame(self,column, row, scale):                             #row en comumn zijn voor de positie van de te nemen frame waarbij de spritesheet al verdeeld werd in vakjes, scale gaat waarschijnlijk nooit gebruikt worden aangezien we het in de object klasse al kunnen doen
         image = pygame.Surface((self.frame_width,self.frame_height))
         image.blit(self.sheet,(0,0),area=((column*self.frame_width),(row*self.frame_height),self.frame_width,self.frame_height))          #area: neemt enkel het aangeduide deel van de hele spritesheet met de twee eerste parameters de coordinaten van de linkerbovenhoek en de twee andere de braadte en hoogte van de te nemen oppervlakte
-        print(f"de scale is: {scale}")
+        #print(f"de scale is: {scale}")
         image = pygame.transform.scale(image, (self.frame_width*scale, self.frame_height*scale))
         image.set_colorkey(self.colorkey)
         return image

@@ -1,8 +1,10 @@
 [
     {
         "spritesheet": "images/explosion.png",
-        "width":360,
+        "width":288,
         "height":300,
+        "colorkey":[36,35,41],
+        "scale": 0.2,
         "animations":{
             "explosion":{
                 "loop": false,
