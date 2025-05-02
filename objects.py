@@ -6,7 +6,7 @@ from spritesheet import Spritesheet
 from animations import Animations
 
 class Object:
-    def __init__(self, game, x, y, width = 0, height = 0, image = None, color = 'blue', animationfile = None, scale = 1):        #image geeft een pad naar de afbeeldin, color = Als er geen afbeelding is, maak een gekleurd vierkant.
+    def __init__(self, game, x, y, width = 0, height = 0, image = None, color = 'blue', animationfile = None, scale = 1, center = None):        #image geeft een pad naar de afbeeldin, color = Als er geen afbeelding is, maak een gekleurd vierkant.
         self.game = game
 
         self.pos = pygame.math.Vector2(x,y)     #positie
@@ -26,6 +26,7 @@ class Object:
         #elif os.path.exists(pad naar animationfile met de naam van de classe zodat we het niet telkens moeten bijgeven)
         elif image:
             self.texture = pygame.image.load(image) #laden van de texture (jargon voor afbeelding fyi)
+            self.texture = pygame.transform.scale(self.texture, (self.width*scale, self.height*scale))
             
             if height !=0 or width !=0:             #zou je een width en height geven dan kan je de speler herschalen
                 self.texture = pygame.transform.scale(self.texture, (width, height))
@@ -34,6 +35,9 @@ class Object:
             self.texture = pygame.Surface((width,height))
             self.texture.fill(color)
             print(f"filled surface with color: {color}")
+
+        if center:
+            self.center = center
 
         self.flipSprite = False #wordt bij bv de speler gebruikt om een naar links kijkende animaties te maken uit naar rechts kijkende sprites
         #Als True, dan wordt het plaatje gespiegeld
@@ -50,7 +54,14 @@ class Object:
     @property
     def hitbox(self):       #geeft de coordinaten van de hoekpunten terug, handig voor de collisions
         return {"top":self.pos.y,"bottom":self.pos.y+self.height,"left":self.pos.x,"right":self.pos.x+self.width}
-    
+    @property
+    def center(self):
+        return ((self.hitbox['left']+self.hitbox['right'])/2 , (self.hitbox['top']+self.hitbox['bottom'])/2)
+    @center.setter
+    def center(self, value):
+        self.pos.x = value[0] - self.width/2
+        self.pos.y = value[1] - self.height/2
+        
     def blit(self):
         screen = self.game.screen
         if self.flipSprite:             #Als flipSprite aanstaat, wordt het plaatje horizontaal gespiegeld, Anders tekenen we het gewoon normaal op het scherm.
@@ -86,7 +97,8 @@ class Object:
                 self.animations.load(name = animation_name, animation = anim, loop = loop, next=next)     #next is ook een (onnodige) functie, dus ideaal de naam veranderen in de toekomst
     
     def playanimation(self, animation):     # Speelt een bepaalde animatie af
-        self.animations.play(animation)
+        if self.animated:
+            self.animations.play(animation)
 
     def updateAnimation(self):           #we hebben die twee hier nodig om errors te vermijden, ze worden echter bij child klassen gebruikt
         pass
@@ -137,7 +149,10 @@ class MovingObject(Object):
                     self.vel.x = 0
 
         # dan de y as
-        self.vel.y += (self.acc.y+self.game.gravity)*dt
+        if self.affected_by_gravity:
+            self.vel.y += (self.acc.y+self.game.gravity)*dt
+        else:
+            self.vel.y += self.acc.y*dt
         self.pos.y += self.vel.y*dt
         
         self.onGround = False #neemt aan dat de object niet op de grond is, maar als er wel vanonder collision is wordt het wel als op de grond beschouwd (zie enkele lijnen onder)

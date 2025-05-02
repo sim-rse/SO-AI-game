@@ -5,8 +5,9 @@ Created on Sat Apr 26 23:55:10 2025
 @author: ferha
 """
 import pygame
-class healthbar(object):
-    def __init__(self, behouder, width=None, height=10, color=(255,0,0), border_color=(0,0,0), offset_y=15):
+class healthbar():
+    def __init__(self, behouder,game, width=None, height=7, color=(255,0,0), border_color=(0,0,0), offset_y=15):
+        self.game = game
         # behouder is het object waarvoor we de healthbar maken
         # width is de breedte, als None wordt het de breedte van het object zelf
         # height is de hoogte van de healthbar
@@ -28,23 +29,24 @@ class healthbar(object):
         self.border_color = border_color  # Kleur van de rand rondom de healthbar
         
         # Positie van de healthbar is hetzelfde als het object, maar met een offset boven het object
-        self.X = behouder.X
-        self.Y = behouder.Y - self.offset_y
+
+        self.pos = pygame.math.Vector2(behouder.pos.x,behouder.pos.y - self.offset_y)
 
     def update(self):
         # Deze functie past de grootte van de healthbar aan op basis van de huidige health
         health_ratio = self.behouder.health / self.max_health  # Verhouding van health
 
         # Update de breedte van de healthbar op basis van de verhouding van health
-        self.width = self.max_health * health_ratio
+        self.gauge_width = self.width * health_ratio
 
         # Zorg ervoor dat de healthbar blijft volgen met het object
-        self.X = self.behouder.X
-        self.Y = self.behouder.Y - self.offset_y
+        self.pos = pygame.math.Vector2(self.behouder.pos.x,self.behouder.pos.y - self.offset_y)
+        self.draw()
 
-    def draw(self, scherm):
+    def draw(self):
+        scherm = self.game.screen
         # Eerst de rand tekenen
-        pygame.draw.rect(scherm, self.border_color, (self.X - 1, self.Y - 1, self.max_health + 2, self.height + 2))
+        pygame.draw.rect(scherm, self.border_color, (self.pos.x - 1, self.pos.y - 1, self.width + 2, self.height + 2))
         
         # Dan de echte healthbar tekenen
-        pygame.draw.rect(scherm, self.color, (self.X, self.Y, self.width, self.height))
+        pygame.draw.rect(scherm, self.color, (self.pos.x, self.pos.y, self.gauge_width, self.height))

@@ -35,6 +35,7 @@ class Game():
             for i in obj:
                 self.objects.remove(i)
         else:
+            print(f"removing {obj}")
             self.objects.remove(obj)
 
     def empty(self, keepUI = False):

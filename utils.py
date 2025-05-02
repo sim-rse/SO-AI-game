@@ -1,5 +1,6 @@
 import time
 
+
 def checkDict(dict_to_check,key_to_find, value_if_not_found):
     if key_to_find in dict_to_check:
         return dict_to_check[key_to_find]
@@ -16,3 +17,16 @@ def timeInteval():          #negeer deze, voorlopig niet gebruikt
     else:
         prev_frame_time = now
         yield 1
+
+class SelectionList:
+    def __init__(self):
+        self.list = []
+        self.current = 0
+
+    def append():
+        pass
+
+    
+"""class SelectionSprite(Object):
+    def __init__(self):
+        pass"""

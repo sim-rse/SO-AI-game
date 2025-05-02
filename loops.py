@@ -15,9 +15,9 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
     color = (100,255,255)
 
     player = Player(game,50,50,width=50,height=50, animationfile = "animations/test.json", scale = 2)
-    projectile = Projectile(game, 50, 50, target=pygame.math.Vector2(300,300))
+    projectile = Projectile(game, 150, 50, target=pygame.math.Vector2(300,300))
     ground = Object(game, 0,game.screen_height*0.8, width=game.screen_width, height=200,color = (0,100,0))
-    objects = [player, ground, projectile, Object(game, 120,game.screen_height*0.8-30, width=50, height=30), Object(game, 400,game.screen_height*0.8-80, width=200, height=30),Object(game, 520,525, width=100, height=100) ]
+    objects = [player, ground, Object(game, 120,game.screen_height*0.8-30, width=50, height=30), Object(game, 400,game.screen_height*0.8-80, width=200, height=30),Object(game, 520,525, width=100, height=100) ]
     UI = [healthbar(player, game, width=30),SceneButton(game,800,100,"test","test_scene", border_color=(0,0,0))]
     entities = [player]
 

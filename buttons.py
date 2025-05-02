@@ -2,13 +2,12 @@ import pygame
 from objects import Object
 
 class Button(Object):
-	def __init__(self, game, x, y, text, width = 100, height = 50, color = (0,0,200), border_color = None):
-		super().__init__(game,x,y,width,height,color = color)
+	def __init__(self, game, x, y, text, width = 100, height = 50, color = (0,0,200), border_color = None, image = None, scale = 1):
+		super().__init__(game,x,y,width,height,image = image, color = color, scale = 1)
 		self.text = text
 		self.color = color
 		self.border_color = border_color
 		self.hoverColor = tuple([i+10 if i+10 <= 255 else 255 for i in color])
-		print(f"HOVERCOLOR/ {self.hoverColor}")
 					
 		fontsize = int(height/2)
 		self.font = pygame.font.SysFont("monospace", fontsize)
@@ -53,15 +52,14 @@ class Button(Object):
 		else:
 			return False
 		
-
 	def update(self):
 		self.checkClick()
 		self.update_texture()
 		super().update()
 
 class SceneButton(Button):
-	def __init__(self, game, x, y, text, newScene, width=100, height=50, color = (0,200,0), border_color = None):
-		super().__init__(game, x, y, text, width, height, color, border_color)
+	def __init__(self, game, x, y, text, newScene, width=100, height=50, color = (0,200,0), border_color = None, image= None, scale = 1):
+		super().__init__(game, x, y, text, width, height, color, border_color, image, scale)
 		self.newScene = newScene
 	
 	def clicked(self):
@@ -69,5 +67,5 @@ class SceneButton(Button):
 		self.game.scene = self.newScene
 
 class CharacterSelectButton(Button):
-	def __init__(self, game, x, y, text, width=100, height=50, color = (200,0,0), border_color = None):
-		super().__init__(game, x, y, text, width, height, color, border_color)
+	def __init__(self, game, x, y, text, width=100, height=50, color = (200,0,0), border_color = None, image = None, scale = 1):
+		super().__init__(game, x, y, text, width, height, color, border_color, image, scale)
