@@ -22,6 +22,7 @@ class Game():
 
         self.objects = []
         self.UI = []
+        self.background = pygame.images.load('images/projectimage1.png')
 
     def add(self,obj):
         if type(obj) == list:

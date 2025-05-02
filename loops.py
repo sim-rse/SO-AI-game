@@ -83,7 +83,7 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
                 case pygame.MOUSEBUTTONDOWN:
                     mouse = pygame.mouse.get_pos()
 
-        screen.fill(color=color)
+        screen.blit(self.background)
 
         for obj in game.objects:
             #otherobjects = [i for i in objects if i != obj]
