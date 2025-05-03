@@ -3,6 +3,7 @@ from entities import *
 from objects import *
 from healthbar import healthbar
 from buttons import SceneButton
+from tracker import Tracker
 
 clock = pygame.time.Clock()
 
@@ -19,7 +20,7 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
     ground = Object(game, 0,game.screen_height*0.8, width=game.screen_width, height=200,color = (0,100,0))
     walls = [Object(game,-50,0, width=50, height = screen.get_height()) , Object(game, screen.get_width(),0, width=50, height=screen.get_height())]
     objects = [player, ground, Object(game, 120,game.screen_height*0.8-30, width=50, height=30), Object(game, 400,game.screen_height*0.8-80, width=200, height=30),Object(game, 520,525, width=100, height=100)]
-    UI = [healthbar(player, game, width=30)]#,SceneButton(game,800,100,"test","test_scene", border_color=(0,0,0))
+    UI = [healthbar(player, game, width=30), Tracker(game, player, color="blue")]#,SceneButton(game,800,100,"test","test_scene", border_color=(0,0,0))
     
 
     game.add(objects)
@@ -69,6 +70,8 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
                                 obj.pos.y = 50
                     if event.key == pygame.K_F7:
                         game.scene_running = False
+                    if event.key == pygame.K_F8:
+                        print(game.objects)
 
                     key = pygame.key.name(event.key)
                     if len(keys)>=8:

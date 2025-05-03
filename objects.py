@@ -20,7 +20,7 @@ class Object:
             #print(f"animating {self}")
             self.animations = Animations()
             self.loadAnimations(animationfile,scale)
-            self.animations.play('default')
+            self.animations.playDefault()
             self.texture = self.animations.image
             #print(f"type texture :{type(self.texture)}")
         #elif os.path.exists(pad naar animationfile met de naam van de classe zodat we het niet telkens moeten bijgeven)
@@ -56,11 +56,11 @@ class Object:
         return {"top":self.pos.y,"bottom":self.pos.y+self.height,"left":self.pos.x,"right":self.pos.x+self.width}
     @property
     def center(self):
-        return ((self.hitbox['left']+self.hitbox['right'])/2 , (self.hitbox['top']+self.hitbox['bottom'])/2)
+        return pygame.math.Vector2((self.hitbox['left']+self.hitbox['right'])/2 , (self.hitbox['top']+self.hitbox['bottom'])/2)
     @center.setter
-    def center(self, value):
-        self.pos.x = value[0] - self.width/2
-        self.pos.y = value[1] - self.height/2
+    def center(self, value: pygame.math.Vector2):
+        self.pos.x = value.x - self.width/2
+        self.pos.y = value.y - self.height/2
         
     def blit(self):
         screen = self.game.screen

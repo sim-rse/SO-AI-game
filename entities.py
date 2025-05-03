@@ -13,6 +13,7 @@ class Entity(MovingObject):
         self.list_of_targets = PriorityQueue()
 
         self.collider = False
+        self.invincible = False
     
     def die(self):
         self.playanimation("die")
@@ -22,7 +23,8 @@ class Entity(MovingObject):
             self.vel.y = -14
 
     def getDamage(self, damage):
-        self.health -= damage
+        if not self.invincible:
+            self.health -= damage
         self.playanimation("get_damaged")
 
     def punch(self, otherEntity = None):
@@ -65,12 +67,10 @@ class Projectile(Entity):
 
     def die(self):
         super().die()
+        self.game.remove(self)
         if self.exploding:
             self.game.add(Explosion(self.game, self.pos.x, self.pos.y, explosionrange = self.explosionrange, center=self.center))    #creert een explosie in het centrum van de projectile
-        self.game.remove(self)
         
-    """def getDamage(self, damage):
-        self.die()"""
 
     def update(self):
         self.updatePos()
@@ -85,7 +85,7 @@ class Projectile(Entity):
         self.blit()
 
 class Explosion(Entity):
-    def __init__(self, game, x, y, scale=1, center=None, explosionrange = 100, strength = 0):
+    def __init__(self, game, x, y, scale=1, center=None, explosionrange = 100, strength = 30):
         super().__init__(game, x, y, scale = scale, animationfile = "animations/explosion.json", center=center)
         self.playanimation("explosion")
         self.static = True
@@ -99,15 +99,19 @@ class Explosion(Entity):
                 ent.getDamage(self.strength)
 
                 knockback_direction = pygame.math.Vector2(ent.pos.x - self.pos.x,ent.pos.y-self.pos.y)
-                if not knockback_direction.xy == (0,0):
+                print(knockback_direction.xy)
+                if not knockback_direction.xy == [0,0]:
                     knockback_direction.normalize_ip()      #normaliseert de vector als het niet 0 is
 
                 ent.vel = knockback_direction*self.strength*2       #*(10/self.getDistanceFrom(ent))
         
     def update(self):
         super().update()
-        if self.animations.current == "default":        #als de explosion animation af is gaat het weer naar default (lege animatie) als het zo is kan de explosion weg 
+        if self.animations.current.name == "default":        #als de explosion animation af is gaat het weer naar default (lege animatie) als het zo is kan de explosion weg 
             self.die()
+
+    def getDamage(self, damage):
+        pass
 
     def die(self):
         self.game.remove(self)
@@ -118,6 +122,7 @@ class Player(Entity):
         self.walkSpeed = 10
         self.shoot_key_hold = False
         self.sneaking = False
+        self.health = 10000
 
     def getKeyPress(self):
         keys = pygame.key.get_pressed()
@@ -151,7 +156,7 @@ class Player(Entity):
             for i in [ent for ent in self.game.entities if not ent == self]:
                 list_of_targets.put((self.pos.distance_to(i.pos), i))           #de afstand tussen self en de andere entity wordt als prioriteit gebruikt
             
-            self.target = list_of_targets.get()
+            self.target = list_of_targets.get()[1]
         else:
             self.target = None
 
@@ -190,8 +195,6 @@ class Enemy(Entity):
     def __init__(self, game, x, y, width=0, height=0, image="placeholder.png", animationfile=None, scale=1, health=20):
         super().__init__(game, x, y, width, height, image, animationfile, scale, health)
 
-        print(game)
-
         self.target = game.players[0]
         self.walkSpeed = 5
 
@@ -200,3 +203,5 @@ class Enemy(Entity):
         self.direction = self.target.pos-self.pos
         self.direction.normalize_ip()
         self.vel.x = self.walkSpeed*self.direction.x
+
+        
