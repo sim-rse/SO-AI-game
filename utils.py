@@ -21,12 +21,38 @@ def timeInteval():          #negeer deze, voorlopig niet gebruikt
 class SelectionList:
     def __init__(self):
         self.list = []
-        self.current = 0
+        self.current_pos = 0
 
-    def append():
-        pass
+    def append(self,obj):
+        self.list.append(obj)
 
+    def remove(self,obj):
+        self.list.remove(obj)
+
+    def go_next(self):
+        self.current = (self.current+1)% self.length
+
+    def go_previous(self):
+        self.current = (self.current-1)% self.length
+
+    @property
+    def length(self):
+        return len(self.list)
+
+    @property
+    def next(self):
+        return (self.current+1)% self.length
     
-"""class SelectionSprite(Object):
-    def __init__(self):
-        pass"""
+    @property
+    def previous(self):
+        return (self.current-1)% self.length
+    
+    @property
+    def current(self):
+        return self.list[self.current_pos]
+    
+    @current.setter
+    def current(self, value: str):
+        if value in self.list:
+            self.current_pos = self.list.index(value)
+

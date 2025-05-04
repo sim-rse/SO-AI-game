@@ -67,5 +67,9 @@ class SceneButton(Button):
 		self.game.scene = self.newScene
 
 class CharacterSelectButton(Button):
-	def __init__(self, game, x, y, text, width=100, height=50, color = (200,0,0), border_color = None, image = None, scale = 1):
-		super().__init__(game, x, y, text, width, height, color, border_color, image, scale)
+	def __init__(self, game, x, y, text, width=100, height=50, color = (200,0,0), border_color = None, image = None, scale = 1, character = None):
+			super().__init__(game, x, y, text, width, height, color, border_color, image, scale)
+			self.character = character
+
+	def clicked(self):
+		self.game.character = self.character

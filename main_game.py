@@ -22,6 +22,7 @@ class Game():
 
         self.objects = []
         self.UI = []
+<<<<<<< HEAD
         self.backgrounds = [
         pygame.image.load("image/projectimage1.png").convert(),
         pygame.image.load("image/projectimage2.png").convert(),
@@ -29,6 +30,9 @@ class Game():
         ]
 self.background_index = 0
 self.background = self.backgrounds[self.background_index]
+=======
+        self.background = None #pygame.image.load('images/projectimage1.png')
+>>>>>>> 86e9e7d5f0f80670146d24d559abe2414f4e56f5
 
     def add(self,obj):
         if type(obj) == list:
@@ -40,10 +44,12 @@ self.background = self.backgrounds[self.background_index]
     def remove(self,obj):
         if type(obj) == list:
             for i in obj:
-                self.objects.remove(i)
+                if i in self.objects:       #er was ander soms een error bij projectiles waarbij het zich twee keer probeerde te removen (dit was een tijdelijke fix, maar als u dit ziet ben ik het vergeten deftig op te lossen)
+                    self.objects.remove(i)
         else:
             print(f"removing {obj}")
-            self.objects.remove(obj)
+            if obj in self.objects:
+                self.objects.remove(obj)
 
     def empty(self, keepUI = False):
         self.objects = []
@@ -82,6 +88,9 @@ self.background = self.backgrounds[self.background_index]
     @property
     def screen_height(self):
         return self.screen.get_height()
+    
+    def __str__(self):
+        return f"Main game object containing {self.objects}"
 
 screenInfo = pygame.display.Info()
 

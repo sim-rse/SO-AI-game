@@ -41,5 +41,20 @@
             }
 
         }
+    },
+    {
+        "spritesheet": "images\\Sneak.png",
+        "width":16,
+        "height":16,
+        "colorkey": [0,116,116],
+        "animations":{
+            "sneak":{
+                "loop": true,
+                "frames": 1,
+                "column":0,
+                "row":0,
+                "direction":"x"
+            }
+        }
     }
 ]
