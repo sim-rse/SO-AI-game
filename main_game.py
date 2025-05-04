@@ -22,7 +22,13 @@ class Game():
 
         self.objects = []
         self.UI = []
-        self.background = pygame.images.load('images/projectimage1.png')
+        self.backgrounds = [
+        pygame.image.load("image/projectimage1.png").convert(),
+        pygame.image.load("image/projectimage2.png").convert(),
+        pygame.image.load("image/projectimage3.png").convert()
+        ]
+self.background_index = 0
+self.background = self.backgrounds[self.background_index]
 
     def add(self,obj):
         if type(obj) == list:
@@ -87,11 +93,13 @@ screen = pygame.display.set_mode(screen_size) #voeg pygame.FULLSCREEN als argume
 pygame.display.set_caption("Untitled Fight Game - Nu met animaties!")
 
 game = Game(screen) #We maken ee game class aan die allerlei variabels over de game in het algemeen (zoals screen, lijsten met entities enz, tijd tussen de frames) groepeert zodat we telkens maar een variabel moeten doorgeven en niet duizenden. Zo kan een object makkelijker variabels van andere objecten veranderen (zolang deze zich ergens in de Game object bevinden) 
-
+#zahide 
 while game.running:
     match game.scene:
         case "default":
             gameLoop(game)
         case "test_scene":
             test_menu(game)
+        case "menu":
+            start_menu(game)
 pygame.quit()
