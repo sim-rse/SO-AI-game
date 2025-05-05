@@ -54,6 +54,8 @@ class Object:
     @property
     def hitbox(self):       #geeft de coordinaten van de hoekpunten terug, handig voor de collisions
         return {"top":self.pos.y,"bottom":self.pos.y+self.height,"left":self.pos.x,"right":self.pos.x+self.width}
+    
+    #de onderste properties worden gebruikt om het ergens in de code gemakkelijker te maken, het zijn de coordinaten van de zwaartepunt centrum op de grond
     @property
     def center(self):
         return pygame.math.Vector2((self.hitbox['left']+self.hitbox['right'])/2 , (self.hitbox['top']+self.hitbox['bottom'])/2)
@@ -61,6 +63,31 @@ class Object:
     def center(self, value: pygame.math.Vector2):
         self.pos.x = value.x - self.width/2
         self.pos.y = value.y - self.height/2
+
+    @property
+    def center_bottom(self):
+        return pygame.math.Vector2((self.hitbox['left']+self.hitbox['right'])/2 , self.hitbox['bottom'])
+    @center_bottom.setter
+    def center_bottom(self, value: pygame.math.Vector2):
+        self.pos.x = value.x - self.width/2
+        self.pos.y = value.y - self.height
+
+    def collideswith(self, otherObject, range_ = 0):        #van WPO6 gekopieerd, ma we werken hier enkel met rechthoeken
+        #basically de hitboxen van de twee objecten berekenen, afhankelijk van wat minder zwaar is voor de computer houden wij deze methode of de hitbox() methode
+        x1 = self.pos.x
+        y1 = self.pos.y
+        x2 = self.pos.x + self.width
+        y2 = self.pos.y + self.height
+        
+        otherObjectx1 = otherObject.pos.x - range_  #Met range_ kun je oof zien of de self zich op een bepaalde afstand van otherObject bevindt                 
+        otherObjecty1 = otherObject.pos.y - range_
+        otherObjectx2 = otherObject.pos.x + otherObject.width + range_
+        otherObjecty2 = otherObject.pos.y + otherObject.height + range_
+        
+        if x1 < otherObjectx2 and x2 > otherObjectx1 and y1 < otherObjecty2 and y2 > otherObjecty1:
+            return True
+        else:
+            return False
         
     def blit(self):
         screen = self.game.screen
@@ -106,6 +133,13 @@ class Object:
 
     def animationHandler(self):        
         pass
+
+class Empty(Object):
+    def __init__(self, game, x=0, y=0, width=0, height=0, center_bottom = None):
+        super().__init__(game, x, y, width, height, color = (0,0,0,0))
+        self.collider = False
+        if center_bottom:
+            self.center_bottom = center_bottom
 
 class MovingObject(Object):
     def __init__(self, game, x, y, width=0, height=0, image=None, hasCollisionEnabled=False, affected_by_gravity=True, color='blue', animationfile=None, scale=1, center = None):
@@ -178,23 +212,7 @@ class MovingObject(Object):
             self.acc.x = difference*force
         else:
             self.acc.x = difference          #zodat hij niet oneindig klein begint te gaan en dat de walk animatie blijft spelen bv.
-    
-    def collideswith(self, otherObject, range_ = 0):        #van WPO6 gekopieerd, ma we werken hier enkel met rechthoeken
-        #basically de hitboxen van de twee objecten berekenen, afhankelijk van wat minder zwaar is voor de computer houden wij deze methode of de hitbox() methode
-        x1 = self.pos.x
-        y1 = self.pos.y
-        x2 = self.pos.x + self.width
-        y2 = self.pos.y + self.height
-        
-        otherObjectx1 = otherObject.pos.x - range_  #Met range_ kun je oof zien of de self zich op een bepaalde afstand van otherObject bevindt                 
-        otherObjecty1 = otherObject.pos.y - range_
-        otherObjectx2 = otherObject.pos.x + otherObject.width + range_
-        otherObjecty2 = otherObject.pos.y + otherObject.height + range_
-        
-        if x1 < otherObjectx2 and x2 > otherObjectx1 and y1 < otherObjecty2 and y2 > otherObjecty1:
-            return True
-        else:
-            return False
+
         
     def update(self):
         if not self.static:     #zou je de movingobject willen freezen ofz

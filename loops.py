@@ -4,6 +4,7 @@ from objects import *
 from healthbar import healthbar
 from buttons import SceneButton
 from tracker import Tracker
+from AI import thing
 
 clock = pygame.time.Clock()
 
@@ -30,8 +31,10 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
     enemy = Enemy(game, 600, 50)
     game.add(enemy)
 
-    grav = True
+    waypoints = thing(game, enemy)
+    game.add_UI(waypoints)
 
+    grav = True
     font = pygame.font.SysFont("monospace", 15)
 
     last_time = time.time()
@@ -46,7 +49,7 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
         #game.dt = dt
         
         if game.debugging:
-            pygame.display.set_caption(f"fps: {str(fps)}")
+            pygame.display.set_caption(f"Untitled Fight Game [DEBUG] - fps: {str(fps)}")
 
         for event in pygame.event.get():
             match event.type: 

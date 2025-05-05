@@ -201,7 +201,8 @@ class Enemy(Entity):
     def update(self):
         super().update()
         self.direction = self.target.pos-self.pos
-        self.direction.normalize_ip()
+        if not self.direction == [0,0]:
+            self.direction.normalize_ip()
         self.vel.x = self.walkSpeed*self.direction.x
 
         
