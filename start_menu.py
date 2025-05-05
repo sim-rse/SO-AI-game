@@ -4,7 +4,7 @@ Created on Fri May  2 13:44:17 2025
 
 @author: ferha
 """
-import pygame  # Laad de pygame module
+import pygame  # Laad de pygame module 
 clock = pygame.time.Clock()  # Clock object om FPS te regelen
 
 def start_menu(game):
