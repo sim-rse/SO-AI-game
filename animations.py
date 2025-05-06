@@ -49,6 +49,9 @@ class Animations():
 
     def setDefault(self, name):         #Hiermee kun je instellen wat de standaard animatie is Bijvoorbeeld: als er niks gebeurt, toon dan "default".
         self.default = name
+
+    def playDefault(self):
+        self.play(self.default)
     
 class Animation():
     def __init__(self, name:str, frames:list, loop: bool, next:str = None):

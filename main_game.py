@@ -3,6 +3,8 @@ import pygame
 from loops import *
 from objects import *
 from entities import *
+from start_menu import start_menu
+
 pygame.init()
 
 class Game():
@@ -18,11 +20,17 @@ class Game():
         self.scene_running = False
         self.gravity = 1
 
-        self.debugging = False
+        self.debugging = True
 
         self.objects = []
         self.UI = []
-        self.background = None #pygame.image.load('images/projectimage1.png')
+        self.backgrounds = [
+        pygame.image.load("images/projectimage1.jpg").convert(),
+        pygame.image.load("images/projectimage2.jpg").convert(),
+        pygame.image.load("images/projectimage3.jpg").convert()
+        ]
+        self.background_index = 0
+        self.background = self.backgrounds[self.background_index]
 
     def add(self,obj):
         if type(obj) == list:
@@ -37,7 +45,7 @@ class Game():
                 if i in self.objects:       #er was ander soms een error bij projectiles waarbij het zich twee keer probeerde te removen (dit was een tijdelijke fix, maar als u dit ziet ben ik het vergeten deftig op te lossen)
                     self.objects.remove(i)
         else:
-            print(f"removing {obj}")
+            #print(f"removing {obj}")
             if obj in self.objects:
                 self.objects.remove(obj)
 
@@ -89,14 +97,16 @@ screen_y = (screenInfo.current_h)*0.9
 screen_size = [1536,864] #(width x height)
 screen = pygame.display.set_mode(screen_size) #voeg pygame.FULLSCREEN als argument toe voor fullscreen
 
-pygame.display.set_caption("Untitled Fight Game - Nu met animaties!")
+pygame.display.set_caption("Untitled Fight Game - AI in the works!")
 
 game = Game(screen) #We maken ee game class aan die allerlei variabels over de game in het algemeen (zoals screen, lijsten met entities enz, tijd tussen de frames) groepeert zodat we telkens maar een variabel moeten doorgeven en niet duizenden. Zo kan een object makkelijker variabels van andere objecten veranderen (zolang deze zich ergens in de Game object bevinden) 
-
+#zahide 
 while game.running:
     match game.scene:
         case "default":
             gameLoop(game)
         case "test_scene":
             test_menu(game)
+        case "menu":
+            start_menu(game)
 pygame.quit()
