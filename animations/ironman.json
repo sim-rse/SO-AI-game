@@ -1,0 +1,99 @@
+[
+    {
+        "spritesheet": "images\\ironman.png",
+
+        "colorkey":[255,0,220],
+        "animations":{
+            "default":{
+                "loop": true,
+                "frames": 1,
+                "column":0,
+                "row":0,
+                "direction":"x"
+            },
+            "walk":{
+                "width":135,
+                "height":228,                
+                "loop": true,
+                "frames": 2,
+                "column":0,
+                "row":0,
+                "direction":"x"
+            },
+            "fall":{
+                "width":140,
+                "height":228,
+                "loop": false,
+                "frames": 1,
+                "column":3,
+                "row":0,
+                "direction":"x"
+            },
+            "jump":{
+                "width":207,
+                "height":254,
+                "loop": true,
+                "frames": 1,
+                "column":2,
+                "row":0,
+                "direction":"x"
+            },
+            "repulsor":{
+                "width":255,
+                "height":89,
+                "loop": true,
+                "frames":2,
+                "column":0,
+                "row":1,
+                "direction":"x"
+            },
+            "defend":{
+                "width":122,
+                "height":212,
+                "loop": true,
+                "frames":1,
+                "column":0,
+                "row":2,
+                "direction":"x"
+                
+
+            },
+            "attack":{
+                "width":244,
+                "height":190,
+                "loop":true,
+                "frames":1,
+                "column":0,
+                "row":3,
+                "direction":"x"
+            },
+            "forearm_missile":{
+                "width":248,
+                "height":189,
+                "loop":true,
+                "frames":1,
+                "column":0,
+                "row":4,
+                "direction":"x"
+            },
+            "supersonic_charge":{
+                "width":133,
+                "height":238,
+                "loop":true,
+                "frames":1,
+                "column":0,
+                "row":5,
+                "direction":"x"
+            },
+            "system_reboot":{
+                "width":201,
+                "height":258,
+                "loop":true,
+                "frames":1,
+                "column":0,
+                "row":6,
+                "direction":"x"
+            }
+        }
+    }
+]
