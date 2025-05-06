@@ -1,5 +1,6 @@
 import pygame
 import json
+import math
 
 from utils import checkDict
 from spritesheet import Spritesheet
@@ -88,7 +89,10 @@ class Object:
             return True
         else:
             return False
-        
+
+    def getDistanceFrom(self,otherObject):
+        return math.sqrt((otherObject.pos.x - self.pos.x)**2+(otherObject.pos.y-self.pos.y)**2)
+
     def blit(self):
         screen = self.game.screen
         if self.flipSprite:             #Als flipSprite aanstaat, wordt het plaatje horizontaal gespiegeld, Anders tekenen we het gewoon normaal op het scherm.

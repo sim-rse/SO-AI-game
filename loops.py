@@ -4,8 +4,8 @@ from objects import *
 from healthbar import healthbar
 from buttons import SceneButton
 from tracker import Tracker
-from AI import thing
-
+from AI import thing, connect
+from deatharea import DeathArea 
 clock = pygame.time.Clock()
 
 def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (een voor de menu een voor de startscreen en dan een voor het spel)
@@ -17,21 +17,25 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
     color = (100,255,255)
 
     player = Player(game,50,50,width=50,height=50, animationfile = "animations/test.json", scale = 2)
-    
     ground = Object(game, 0,game.screen_height*0.8, width=game.screen_width, height=200,color = (0,100,0))
     walls = [Object(game,-50,0, width=50, height = screen.get_height()) , Object(game, screen.get_width(),0, width=50, height=screen.get_height())]
-    objects = [player, ground, Object(game, 120,game.screen_height*0.8-30, width=50, height=30), Object(game, 400,game.screen_height*0.8-80, width=200, height=30),Object(game, 520,525, width=100, height=100)]
+    platforms = [Object(game, 120,game.screen_height*0.8-30, width=50, height=30), Object(game, 400,game.screen_height*0.8-80, width=200, height=30), Object(game, 700,game.screen_height*0.8-80, width=200, height=30),Object(game, 520,525, width=100, height=100), Object(game, 900, 650, 100,40)]
+    
+    misc = [DeathArea(game, top = -500, bottom=1500, left=-500, right=1800)]
+    objects = [player, ground]
     UI = [healthbar(player, game, width=30), Tracker(game, player, color="blue")]#,SceneButton(game,800,100,"test","test_scene", border_color=(0,0,0))
     
 
     game.add(objects)
     game.add(walls)
+    game.add(platforms)
     game.add_UI(UI)
 
     enemy = Enemy(game, 600, 50)
     game.add(enemy)
 
     waypoints = thing(game, enemy)
+    connect(game, waypoints, enemy)
     game.add_UI(waypoints)
 
     grav = True
@@ -96,6 +100,9 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
 
         screen.fill(color=color) #blit(self.background)
 
+        #updaten van de 3 veschillende layers
+        for i in misc:      
+            i.update()
         for obj in game.objects:
             #otherobjects = [i for i in objects if i != obj]
             obj.update()       #updaten van het object zelf en een lijst van alle andere objecten doorgeven

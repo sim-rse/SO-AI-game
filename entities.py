@@ -14,13 +14,15 @@ class Entity(MovingObject):
 
         self.collider = False
         self.invincible = False
+        self.jump_force = 14
+        self.walkSpeed = 10
     
     def die(self):
         self.playanimation("die")
     
     def jump(self):
         if self.onGround:
-            self.vel.y = -14
+            self.vel.y = -self.jump_force
 
     def getDamage(self, damage):
         if not self.invincible:
@@ -40,8 +42,14 @@ class Entity(MovingObject):
         if self.health <= 0: 
             self.die()
 
-    def getDistanceFrom(self,otherEntity):
-        return math.sqrt((otherEntity.pos.x - self.pos.x)**2+(otherEntity.pos.y-self.pos.y)**2)
+    @property
+    def jumpheight(self):
+        return self.jump_force**2/(2*self.game.gravity)     #de maximumhoogte dat bereikt wordt (zie wet behoud van energie)
+    @property
+    def jumpwidth(self):
+        return self.walkSpeed * (2*self.jump_force/self.game.gravity)       #de grootstse afstand dat het in een sprong kan afleggen
+
+
 
 class Projectile(Entity):
     def __init__(self, game, x, y, width=0, height=0, image="placeholder.png", animationfile=None, scale=1, health=20, target = None, owner = None, exploding = False):
@@ -186,6 +194,10 @@ class Player(Entity):
             self.playanimation("fall")
         else:
             self.playanimation("default")
+
+    def die(self):
+        super().die()
+        print('Oh noo (sad mario music)')
         
     def update(self):
         self.getKeyPress()

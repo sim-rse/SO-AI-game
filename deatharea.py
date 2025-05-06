@@ -9,5 +9,5 @@ class DeathArea:
 
     def update(self):
         for ent in self.game.entities:
-            if (ent.pos.y > self.top or ent.pos.y < self.bottom) or (ent.pos.x < self.left or ent.pos.x > self.right):
+            if (ent.pos.y < self.top or ent.pos.y > self.bottom) or (ent.pos.x < self.left or ent.pos.x > self.right):
                 ent.die()
