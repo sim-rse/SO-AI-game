@@ -102,6 +102,8 @@ pygame.display.set_caption("Untitled Fight Game - AI in the works!")
 game = Game(screen) #We maken ee game class aan die allerlei variabels over de game in het algemeen (zoals screen, lijsten met entities enz, tijd tussen de frames) groepeert zodat we telkens maar een variabel moeten doorgeven en niet duizenden. Zo kan een object makkelijker variabels van andere objecten veranderen (zolang deze zich ergens in de Game object bevinden) 
 #zahide 
 while game.running:
+    game.empty()
+    game.scene_running = True
     match game.scene:
         case "default":
             gameLoop(game)
@@ -109,4 +111,8 @@ while game.running:
             test_menu(game)
         case "menu":
             start_menu(game)
+        case "pause":
+            pause_menu(game)
+
+
 pygame.quit()

@@ -101,7 +101,6 @@ class Object:
             screen.blit(self.texture, (self.pos.x, self.pos.y)) #bij fotos werkt het licht anders dan bij vormen ma doet hetzelfde als pygame.draw.rect(...) bijvoorbeeld
     
     def update(self,otherobjects = None):
-        
         if self.animated:                   # als het object een animatie heeft: 
             self.animationHandler()         #de animatie geüpdatet,het juiste frame gekozen,en getekend op het scherm.
             self.animations.update()
@@ -137,6 +136,11 @@ class Object:
 
     def animationHandler(self):        
         pass
+
+class Wall(Object):
+    def __init__(self, game, x, y, width=0, height=0):
+        super().__init__(game, x, y, width, height, color = (0,0,0,0))
+        
 
 class Empty(Object):
     def __init__(self, game, x=0, y=0, width=0, height=0, center_bottom = None):

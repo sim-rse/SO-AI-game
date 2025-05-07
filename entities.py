@@ -1,6 +1,7 @@
 import pygame, math, time
 from objects import Object, MovingObject
 from queue import PriorityQueue
+from AI import AI
 
 class Entity(MovingObject):
     def __init__(self, game, x, y, width = 0, height = 0, image = "placeholder.png", animationfile = None, scale = 1, health = 20, center = None):
@@ -14,7 +15,7 @@ class Entity(MovingObject):
 
         self.collider = False
         self.invincible = False
-        self.jump_force = 14
+        self.jump_force = 16
         self.walkSpeed = 10
     
     def die(self):
@@ -35,7 +36,7 @@ class Entity(MovingObject):
             otherEntity.getDamage(self.strength)
         
     def shoot(self,target):
-        self.game.add(Projectile(self.game, self.pos.x, self.pos.y, target = target, owner=self, exploding=True))
+        self.game.add(Projectile(self.game, self.center.x, self.center.y - self.height, target = target, owner=self, exploding=True))
 
     def update(self):
         super().update()        #doet wat de update van de parent doet plus wat hieronder staat
@@ -106,7 +107,7 @@ class Explosion(Entity):
             if ent.collideswith(self, range_ = self.explosionrange):        #als de explosionrange 0 is krijgen enkel de geraakte entities damage (zoals bij kogels ofz)
                 ent.getDamage(self.strength)
 
-                knockback_direction = pygame.math.Vector2(ent.pos.x - self.pos.x,ent.pos.y-self.pos.y)
+                knockback_direction = pygame.math.Vector2(ent.center.x - self.center.x,ent.center.y-self.center.y)
                 print(knockback_direction.xy)
                 if not knockback_direction.xy == [0,0]:
                     knockback_direction.normalize_ip()      #normaliseert de vector als het niet 0 is
@@ -209,9 +210,14 @@ class Enemy(Entity):
 
         self.target = game.players[0]
         self.walkSpeed = 5
+        self.ai = AI(game, self)
 
     def update(self):
         super().update()
+        if self.game.debugging == True:
+            for point in self.ai.waypoints:
+                point.update()
+            self.ai.show_path()
         self.direction = self.target.pos-self.pos
         if not self.direction == [0,0]:
             self.direction.normalize_ip()

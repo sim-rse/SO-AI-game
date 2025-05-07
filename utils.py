@@ -1,4 +1,5 @@
 import time
+import pygame
 
 
 def checkDict(dict_to_check,key_to_find, value_if_not_found):
@@ -56,3 +57,10 @@ class SelectionList:
         if value in self.list:
             self.current_pos = self.list.index(value)
 
+class pathShower:
+    def __init__(self,game, path:list):
+        self.path = path
+        self.game = game
+
+    def update(self):
+        pygame.draw.lines(self.game.screen, (0,255,0), False, [point.pos for point in self.path])
