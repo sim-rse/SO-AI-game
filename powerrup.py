@@ -16,11 +16,11 @@ class PowerUp():
         self.y = y                             # y-positie begint bovenaan
         self.effect = effect                   # Wat voor effect de power-up heeft ("shrink", "heal", "strength")
         self.image = image                     # Afbeelding van de power-up
-        self.rect = self.image.get_rect(topleft=(self.x, self.y))  # Maak een rechthoek voor botsingen
+        self.rect = self.image.get_rect(topleft = (self.x, self.y))  # Maak een rechthoek voor botsingen + detecteert botsing
         self.vel_y = 0                          # Snelheid van de val (verticaal)
         self.on_ground = False                  # Flag of de power-up de grond heeft bereikt
         self.collider = True                    # Kan botsten met de speler
-        self.spawn_time = time.time()            # Tijd wanneer de power-up gespawned is (voor automatische verwijdering)
+        self.spawn_time = time.time()           # Tijd wanneer de power-up gespawned is (voor automatische verwijdering)
 
     def update(self, game):
         """Update wordt elke frame uitgevoerd. De power-up valt en botst tegen de speler."""
@@ -79,7 +79,7 @@ def spawn_random_powerup(game):
         "shrink": pygame.image.load("image/power_shrink.png").convert_alpha(),
         "heal": pygame.image.load("image/power_heal.png").convert_alpha(),
         "strength": pygame.image.load("image/power_strength.png").convert_alpha()
-    }
+    }   #hier moeten we nog afbeeldingen kiezen
 
     afbeelding = afbeeldingen[soort]                     # Kies de juiste afbeelding op basis van het effect
     x = random.randint(100, game.screen_width - 100)      # Kies een willekeurige x-positie op het scherm

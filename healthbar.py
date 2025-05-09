@@ -29,7 +29,6 @@ class healthbar():
         self.border_color = border_color  # Kleur van de rand rondom de healthbar
         
         # Positie van de healthbar is hetzelfde als het object, maar met een offset boven het object
-
         self.pos = pygame.math.Vector2(behouder.pos.x,behouder.pos.y - self.offset_y)
 
     def update(self):

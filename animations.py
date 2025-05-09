@@ -13,7 +13,7 @@ class Animations():
 
         self.image = None
 
-        self.default = 'default'
+        self.default = 'default' #Naam van de standaardanimatie (als er niets anders gebeurt
 
     def play(self, name, frame=0):
         if self.current.name == name:
