@@ -76,9 +76,9 @@ def spawn_random_powerup(game):
     soort = random.choice(keuzes)                        # Kies willekeurig één effect
 
     afbeeldingen = {                                     # Koppel elk effect aan een sprite-afbeelding
-        "shrink": pygame.image.load("image/power_shrink.png").convert_alpha(),
-        "heal": pygame.image.load("image/power_heal.png").convert_alpha(),
-        "strength": pygame.image.load("image/power_strength.png").convert_alpha()
+        "shrink": pygame.image.load("image/powerrups.shrink.png").convert_alpha(),
+        "heal": pygame.image.load("image/powerrups.health.png").convert_alpha(),
+        "strength": pygame.image.load("image/powerrups.sterker.png").convert_alpha()
     }   #hier moeten we nog afbeeldingen kiezen
 
     afbeelding = afbeeldingen[soort]                     # Kies de juiste afbeelding op basis van het effect
