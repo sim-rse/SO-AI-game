@@ -1,98 +1,150 @@
 [
     {
-        "spritesheet": "images\\ironman.png",
-
-        "colorkey":[255,0,220],
-        "animations":{
-            "default":{
+        "spritesheet": "images\\ironman_defend.png",
+        "colorkey": [255, 0, 220],
+        "width": 100,
+        "height": 200,
+        "animations": {
+            "default": {
                 "loop": true,
                 "frames": 1,
-                "column":0,
-                "row":0,
-                "direction":"x"
-            },
-            "walk":{
-                "width":135,
-                "height":228,                
+                "column": 0,
+                "row": 0,
+                "direction": "x"
+                
+            }
+        }
+    },
+    {
+        "spritesheet": "images\\ironman_walk2.png",
+        "colorkey": [255, 0, 220],
+        "width": 138,
+        "height": 224,
+       "scale":0.2,
+        "animations": {
+            "walk": {
                 "loop": true,
                 "frames": 2,
-                "column":0,
-                "row":0,
-                "direction":"x"
-            },
-            "fall":{
-                "width":140,
-                "height":228,
+                "column": 0,
+                "row": 0,
+                "direction": "x"
+            }
+        }
+    },
+    {
+        "spritesheet": "images\\ironman_walk2.png",
+        "colorkey": [255, 0, 220],
+        "width": 135,
+        "height": 221,
+        "scale":0.2,
+        "animations": {
+            "fall": {
                 "loop": false,
                 "frames": 1,
-                "column":3,
-                "row":0,
-                "direction":"x"
-            },
-            "jump":{
-                "width":207,
-                "height":254,
+                "column": 3,
+                "row": 0,
+                "direction": "x"
+                
+            }
+        }
+    },
+    {
+        "spritesheet": "images\\ironman_walk2.png",
+        "colorkey": [255, 0, 220],
+        "width": 124,
+        "height": 228,
+        "scale":0.2,
+        "animations": {
+          "jump": {
                 "loop": true,
                 "frames": 1,
-                "column":2,
-                "row":0,
-                "direction":"x"
-            },
-            "repulsor":{
-                "width":255,
-                "height":89,
+                "column": 2,
+                "row": 0,
+                "direction": "x"
+               
+            }
+        }
+    },
+    {
+        "spritesheet": "images\\ironman_repulsor.png",
+        "colorkey": [255, 0, 220],
+        "width": 246,
+        "height": 190,
+        "scale":0.2,
+        "animations": {
+            "repulsor": {
                 "loop": true,
-                "frames":2,
-                "column":0,
-                "row":1,
-                "direction":"x"
-            },
-            "defend":{
-                "width":122,
-                "height":212,
-                "loop": true,
-                "frames":1,
-                "column":0,
-                "row":2,
-                "direction":"x"
+                "frames": 2,
+                "column": 0,
+                "row": 1,
+                "direction": "x"
                 
-
-            },
-            "attack":{
-                "width":244,
-                "height":190,
-                "loop":true,
-                "frames":1,
-                "column":0,
-                "row":3,
-                "direction":"x"
-            },
-            "forearm_missile":{
-                "width":248,
-                "height":189,
-                "loop":true,
-                "frames":1,
-                "column":0,
-                "row":4,
-                "direction":"x"
-            },
-            "supersonic_charge":{
-                "width":133,
-                "height":238,
-                "loop":true,
-                "frames":1,
-                "column":0,
-                "row":5,
-                "direction":"x"
-            },
-            "system_reboot":{
-                "width":201,
-                "height":258,
-                "loop":true,
-                "frames":1,
-                "column":0,
-                "row":6,
-                "direction":"x"
+            }
+        }
+    },
+    {
+        "spritesheet": "images\\ironman_defend.png",
+        "colorkey": [255, 0, 220],
+        "width": 160,
+        "height": 207,
+        "scale":0.2,
+        "animations": {
+            "defend": {
+                "loop": true,
+                "frames": 1,
+                "column": 0,
+                "row": 2,
+                "direction": "x"
+                
+            }
+        }
+    },
+    {
+        "spritesheet": "images\\ironman_defend.png",
+        "colorkey": [255, 0, 220],
+        "width": 246,
+        "height": 199,
+        "scale":0.2,
+        "animations": {
+            "forearm_missile": {
+                 "loop": true,
+                 "frames": 1,
+                 "column": 0,
+                 "row": 4,
+                 "direction": "x"
+                
+            }
+        }
+    },
+    {
+        "spritesheet": "images\\ironman_supersonic_charge.png",
+        "colorkey": [255, 0, 220],
+        "width": 127,
+        "height": 225,
+        "scale":0.2,
+        "animations": {
+            "supersonic_charge": {
+                "loop": true,
+                "frames": 1,
+                "column": 0,
+                "row": 5,
+                "direction": "x"
+            }
+        }
+    },
+    {
+        "spritesheet": "images\\ironman_repulsor.png",
+        "colorkey": [255, 0, 220],
+        "width": 216,
+        "height": 261,
+        "scale":0.2,
+        "animations": {
+            "system_reboot": {
+                "loop": true,
+                "frames": 1,
+                "column": 0,
+                "row": 6,
+                "direction": "x"
             }
         }
     }
