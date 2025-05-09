@@ -5,6 +5,7 @@ from objects import *
 from entities import *
 from start_menu import selection_menu
 from powerrup import PowerUp 
+from game_end import game_over
 
 pygame.init()
 
@@ -149,6 +150,8 @@ while game.running:
             selection_menu(game)
         case "pause":
             game.pause()
+        case 'game_over':
+            game_over(game)
 
 
 pygame.quit()
