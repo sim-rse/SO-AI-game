@@ -54,26 +54,3 @@ def game_over(game: Game):
                             game.scene_running = False
         game.clock.tick(game.fps)
 
-# Voeg deze code toe aan je game loop of gevecht loop om de health te controleren en de game over scene te starten
-
-def gameLoop(game: Game):
-    """
-    De hoofdgame loop voor de gevechten.
-    Controleert spelers en start game over wanneer een speler geen health meer heeft.
-    """
-    # Game logica zoals beweging, aanvallen, enz.
-    # Bijvoorbeeld:
-    for player in game.players:
-        player.update()  # Je update misschien je spelers hier
-
-    # Controleer of een speler geen health meer heeft en start Game Over
-    for player in game.players:
-        if player.health <= 0:
-            game.scene = "game_over"
-            game.scene_running = False
-            break  # Stop de loop zodra iemand verloren heeft
-
-    # De rest van de game loop
-    # Tekenen, animaties, enz.
-    game.clock.tick(game.fps)
-
