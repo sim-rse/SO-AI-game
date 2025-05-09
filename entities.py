@@ -131,7 +131,7 @@ class Player(Entity):
         self.walkSpeed = 10
         self.shoot_key_hold = False
         self.sneaking = False
-        self.health = 10000
+        self.health = 50
 
     def getKeyPress(self):
         keys = pygame.key.get_pressed()
@@ -199,6 +199,8 @@ class Player(Entity):
     def die(self):
         super().die()
         print('Oh noo (sad mario music)')
+        self.game.scene = "game_over"
+        self.game.scene_running = False
         
     def update(self):
         self.getKeyPress()
@@ -213,7 +215,7 @@ class Enemy(Entity):
         self.ai = AI(game, self)
 
         self.path:list = self.ai.find_path(self.pos, self.target.pos)
-        self.path.append(Waypoint(game, self.target.pos.x, self.target.pos.y))
+        #self.path.append(Waypoint(game, self.target.pos.x, self.target.pos.y))
         self.current_waypoint = self.path.pop()
 
     def movement(self):
@@ -222,9 +224,9 @@ class Enemy(Entity):
         pos = self.center_bottom
         waypoint = self.current_waypoint
         #print(waypoint.pos.x, pos.x)
-
-        if pos.distance_to(waypoint.pos) <= 5:
-            self.current_waypoint = path.pop()
+        if len(path) !=0:
+            if pos.distance_to(waypoint.pos) <= 5:
+                self.current_waypoint = path.pop()
         
         if waypoint.pos.x + 1< pos.x:
             self.smoothSpeedChange(-self.walkSpeed)

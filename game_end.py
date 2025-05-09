@@ -6,9 +6,9 @@ Created on Fri May  9 14:32:48 2025
 """
 
 import pygame
-
+clock = pygame.time.Clock()
 # Voeg deze code toe aan je bestaande game-bestand
-def game_over(game: Game):
+def game_over(game):
     """
     Functie voor het tonen van het 'Game Over' scherm.
     Toont de winnaar of een gelijkspel.
@@ -52,5 +52,4 @@ def game_over(game: Game):
                         case pygame.K_RETURN:  # Druk op Enter om terug naar menu te gaan
                             game.scene = "start_menu"
                             game.scene_running = False
-        game.clock.tick(game.fps)
-
+        clock.tick(game.fps)

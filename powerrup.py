@@ -7,33 +7,33 @@ Created on Mon May  5 20:16:06 2025
 import pygame           # Hiermee kun je games maken
 import random           # Voor willekeurige keuzes (bijv. positie)
 import time             # Om tijd bij te houden
+from objects import MovingObject
 
 # Klasse voor de PowerUp
-class PowerUp:
-    def __init__(self, x, y, effect, image):
-        self.x = x                                   # x-positie op het scherm
-        self.y = y                                   # y-positie op het scherm (begint bovenaan)
+class PowerUp(MovingObject):
+    def __init__(self, game, x, y, effect, image):
+        super().__init__(game, x,y, image = image)   # x-positie op het scherm , y-positie op het scherm (begint bovenaan)
         self.effect = effect                         # Wat voor effect de power-up geeft ("shrink", "heal", "strength")
-        self.image = image                           # De afbeelding die wordt weergegeven
-        self.width = image.get_width()               # Breedte van de afbeelding
-        self.height = image.get_height()             # Hoogte van de afbeelding
         self.vel_y = 0                               # Snelheid waarmee hij naar beneden valt
         self.on_ground = False                       # Of de power-up op de grond ligt
-        self.collider = True                         # Of de power-up kan botsen met de speler
+        self.collider = False                        # Of de power-up kan speler met de botsen 
+        self.collisionsEnabled = True                # Of de powerup botst met de omgeving
         self.spawn_time = time.time()                # Tijd waarop de power-up gemaakt is
 
-    def update(self, game):
+    def update(self):
+        game = self.game
+        super().update()
         """Elke frame wordt deze functie uitgevoerd om de power-up te updaten"""
 
-        # Als hij nog niet op de grond ligt
+        """# Als hij nog niet op de grond ligt
         if not self.on_ground:
             self.vel_y += game.gravity               # Voeg zwaartekracht toe aan de valsnelheid
-            self.y += self.vel_y                     # Beweeg hem naar beneden
+            self.pos.y += self.vel_y                     # Beweeg hem naar beneden
 
             # Als hij de onderkant van het scherm raakt
-            if self.y >= game.screen_height - self.height:
-                self.y = game.screen_height - self.height  # Zet hem netjes op de grond
-                self.on_ground = True                      # Geef aan dat hij op de grond ligt
+            if self.pos.y >= game.screen_height - self.height:
+                self.pos.y = game.screen_height - self.height  # Zet hem netjes op de grond
+                self.on_ground = True                      # Geef aan dat hij op de grond ligt"""
 
         # Kijk of hij een speler raakt
         for speler in game.players:
@@ -49,10 +49,10 @@ class PowerUp:
     def collides_with(self, other):
         """Check of twee objecten botsen (eenvoudige vierkante botsing)"""
         return (
-            self.x < other.x + other.width and            # Linkerkant van power-up raakt rechterkant speler
-            self.x + self.width > other.x and             # Rechterkant van power-up raakt linkerkant speler
-            self.y < other.y + other.height and           # Bovenkant van power-up raakt onderkant speler
-            self.y + self.height > other.y                # Onderkant van power-up raakt bovenkant speler
+            self.pos.x < other.pos.x + other.width and            # Linkerkant van power-up raakt rechterkant speler
+            self.pos.x + self.width > other.pos.x and             # Rechterkant van power-up raakt linkerkant speler
+            self.pos.y < other.pos.y + other.height and           # Bovenkant van power-up raakt onderkant speler
+            self.pos.y + self.height > other.pos.y                # Onderkant van power-up raakt bovenkant speler
         )
 
     def apply(self, speler):
@@ -78,14 +78,14 @@ def spawn_random_powerup(game):
     soort = random.choice(keuzes)                         # Kies er willekeurig één uit
 
     afbeeldingen = {                                      # Koppel elke soort aan een plaatje
-        "shrink": pygame.image.load("image/powerrups.shrink.png").convert_alpha(),
-        "heal": pygame.image.load("image/powerrups.health.png").convert_alpha(),
-        "strength": pygame.image.load("image/powerrups.sterker.png").convert_alpha()
+        "shrink": "images\\powerups\\shrink.gif"
+        #"heal": "images\\powerrups\\health.gif",
+        #"strength": "images\\powerrups\\sterker.gif"
     }
 
-    afbeelding = afbeeldingen[soort]                      # Kies het juiste plaatje
+    afbeelding = afbeeldingen["shrink"]                      # Kies het juiste plaatje
     x = random.randint(100, game.screen_width - 100)      # Kies een willekeurige plek op het scherm
-    y = 0                                                  # Begin bovenaan
+    y = 0                                                 # Begin bovenaan
 
-    powerup = PowerUp(x, y, soort, afbeelding)            # Maak een power-up object
+    powerup = PowerUp(game, x, y, soort, afbeelding)            # Maak een power-up object
     game.add(powerup)                                     # Voeg het toe aan het spel
