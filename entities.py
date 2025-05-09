@@ -199,6 +199,8 @@ class Player(Entity):
     def die(self):
         super().die()
         print('Oh noo (sad mario music)')
+        self.game.scene = "game_over"
+        self.game.scene_running = False
         
     def update(self):
         self.getKeyPress()
@@ -215,6 +217,10 @@ class Enemy(Entity):
         self.path:list = self.ai.find_path(self.pos, self.target.pos)
         self.path.append(Waypoint(game, self.target.pos.x, self.target.pos.y))
         self.current_waypoint = self.path.pop()
+        
+    def die(self):
+        self.game.scene = "game_over"
+        self.game.scene_running = False
 
     def movement(self):
         path = self.path
