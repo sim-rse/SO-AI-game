@@ -2,36 +2,38 @@ import pygame, time, hashlib
 from entities import *
 from objects import *
 from healthbar import healthbar
-from buttons import SceneButton
+from buttons import *
 from tracker import Tracker
-
+#from AI import thing, connect
+from deatharea import DeathArea 
 clock = pygame.time.Clock()
 
 def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (een voor de menu een voor de startscreen en dan een voor het spel)
     screen = game.screen
-    game.scene_running = True
-    game.empty()
 
     keys = []
     color = (100,255,255)
+    ground_level = game.screen_height*0.8
 
-    player = Player(game,50,50,width=50,height=50, animationfile = "animations/test.json", scale = 2)
-    
-    ground = Object(game, 0,game.screen_height*0.8, width=game.screen_width, height=200,color = (0,100,0))
-    walls = [Object(game,-50,0, width=50, height = screen.get_height()) , Object(game, screen.get_width(),0, width=50, height=screen.get_height())]
-    objects = [player, ground, Object(game, 120,game.screen_height*0.8-30, width=50, height=30), Object(game, 400,game.screen_height*0.8-80, width=200, height=30),Object(game, 520,525, width=100, height=100)]
-    UI = [healthbar(player, game, width=30), Tracker(game, player, color="blue")]#,SceneButton(game,800,100,"test","test_scene", border_color=(0,0,0))
+    player = Player(game,150,550,width=50,height=50, animationfile = "animations/test.json", scale = 2)
+    ground = Object(game, 0,ground_level, width=game.screen_width, height=200,color = (0,100,0))
+    walls = [Wall(game,-50,0, width=50, height = screen.get_height()), Wall(game, screen.get_width(),0, width=50, height=screen.get_height())]
+    platforms = [Object(game, 150, ground_level-100, width=200, height=30), Object(game, 650, ground_level-100, width=200, height=30), Object(game, 400, ground_level-200, width=200, height=30), Object(game, 800, ground_level-250, width=200, height=30), Object(game, 900, ground_level-100, width=40, height=100), Object(game, 940, ground_level-100, width=80, height=10)]
+    #Object(game, 120,game.screen_height*0.8-30, width=50, height=30), Object(game, 120,game.screen_height*0.8-30, width=50, height=30),Object(game, 400,game.screen_height*0.8-80, width=200, height=30), Object(game, 700,game.screen_height*0.8-80, width=200, height=30),Object(game, 520,525, width=100, height=100), Object(game, 900, 650, 100,40)
+    misc = [DeathArea(game, top = -500, bottom=1500, left=-500, right=1800)]
+    objects = [player, ground]
+    UI = [healthbar(player, game, width=30), Tracker(game, player, color="blue"), PauseButton(game,screen.get_width()/2,100,"pause de game", border_color=(0,0,0))]#
     
 
     game.add(objects)
     game.add(walls)
+    game.add(platforms)
     game.add_UI(UI)
 
-    enemy = Enemy(game, 600, 50)
+    enemy = Enemy(game, 600, 650)
     game.add(enemy)
 
     grav = True
-
     font = pygame.font.SysFont("monospace", 15)
 
     last_time = time.time()
@@ -46,7 +48,7 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
         #game.dt = dt
         
         if game.debugging:
-            pygame.display.set_caption(f"fps: {str(fps)}")
+            pygame.display.set_caption(f"Untitled Fight Game [DEBUG] - fps: {str(fps)}")
 
         for event in pygame.event.get():
             match event.type: 
@@ -72,7 +74,8 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
                         game.scene_running = False
                     if event.key == pygame.K_F8:
                         print(game.objects)
-
+                    if event.key == pygame.K_ESCAPE:
+                        game.pause()
                     key = pygame.key.name(event.key)
                     if len(keys)>=8:
                         keys.pop(0)
@@ -93,23 +96,22 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
 
         screen.fill(color=color) #blit(self.background)
 
+        #updaten van de 3 veschillende layers
+        for i in misc:      
+            i.update()
         for obj in game.objects:
             #otherobjects = [i for i in objects if i != obj]
             obj.update()       #updaten van het object zelf en een lijst van alle andere objecten doorgeven
         for i in game.UI:
             i.update()
             
-        label = font.render(f"Player position   x: {round(player.pos.x,2)} y: {round(player.pos.y,2)}", 1, (0,0,0))
-        screen.blit(label, (20, 20))
+        """label = font.render(f"Player position   x: {round(player.pos.x,2)} y: {round(player.pos.y,2)}", 1, (0,0,0))
+        screen.blit(label, (20, 20))"""
 
         pygame.display.flip()
 
-def test_menu(game):
-    game.empty()
-    game.scene_running = True
+def start_menu(game):
     screen = game.screen
-    game.scene_running = True
-    game.empty()
     color = (0,0,0)
 
     UI = [SceneButton(game,100,200,"Back to game","default",width=100,height=30)]
@@ -130,3 +132,4 @@ def test_menu(game):
         
         
         pygame.display.flip()
+

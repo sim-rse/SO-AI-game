@@ -1,6 +1,7 @@
 import pygame, math, time
 from objects import Object, MovingObject
 from queue import PriorityQueue
+from AI import AI, Waypoint
 
 class Entity(MovingObject):
     def __init__(self, game, x, y, width = 0, height = 0, image = "placeholder.png", animationfile = None, scale = 1, health = 20, center = None):
@@ -14,13 +15,15 @@ class Entity(MovingObject):
 
         self.collider = False
         self.invincible = False
+        self.jump_force = 16
+        self.walkSpeed = 10
     
     def die(self):
         self.playanimation("die")
     
     def jump(self):
         if self.onGround:
-            self.vel.y = -14
+            self.vel.y = -self.jump_force       #https://www.youtube.com/watch?v=bn3ZUCZ0vMo
 
     def getDamage(self, damage):
         if not self.invincible:
@@ -33,15 +36,21 @@ class Entity(MovingObject):
             otherEntity.getDamage(self.strength)
         
     def shoot(self,target):
-        self.game.add(Projectile(self.game, self.pos.x, self.pos.y, target = target, owner=self, exploding=True))
+        self.game.add(Projectile(self.game, self.center.x, self.center.y - self.height, target = target, owner=self, exploding=True))
 
     def update(self):
         super().update()        #doet wat de update van de parent doet plus wat hieronder staat
         if self.health <= 0: 
             self.die()
 
-    def getDistanceFrom(self,otherEntity):
-        return math.sqrt((otherEntity.pos.x - self.pos.x)**2+(otherEntity.pos.y-self.pos.y)**2)
+    @property
+    def jumpheight(self):
+        return self.jump_force**2/(2*self.game.gravity)     #de maximumhoogte dat bereikt wordt (zie wet behoud van energie)
+    @property
+    def jumpwidth(self):
+        return self.walkSpeed * (2*self.jump_force/self.game.gravity)       #de grootstse afstand dat het in een sprong kan afleggen
+
+
 
 class Projectile(Entity):
     def __init__(self, game, x, y, width=0, height=0, image="placeholder.png", animationfile=None, scale=1, health=20, target = None, owner = None, exploding = False):
@@ -98,7 +107,7 @@ class Explosion(Entity):
             if ent.collideswith(self, range_ = self.explosionrange):        #als de explosionrange 0 is krijgen enkel de geraakte entities damage (zoals bij kogels ofz)
                 ent.getDamage(self.strength)
 
-                knockback_direction = pygame.math.Vector2(ent.pos.x - self.pos.x,ent.pos.y-self.pos.y)
+                knockback_direction = pygame.math.Vector2(ent.center.x - self.center.x,ent.center.y-self.center.y)
                 print(knockback_direction.xy)
                 if not knockback_direction.xy == [0,0]:
                     knockback_direction.normalize_ip()      #normaliseert de vector als het niet 0 is
@@ -186,6 +195,10 @@ class Player(Entity):
             self.playanimation("fall")
         else:
             self.playanimation("default")
+
+    def die(self):
+        super().die()
+        print('Oh noo (sad mario music)')
         
     def update(self):
         self.getKeyPress()
@@ -197,11 +210,48 @@ class Enemy(Entity):
 
         self.target = game.players[0]
         self.walkSpeed = 5
+        self.ai = AI(game, self)
+
+        self.path:list = self.ai.find_path(self.pos, self.target.pos)
+        self.path.append(Waypoint(game, self.target.pos.x, self.target.pos.y))
+        self.current_waypoint = self.path.pop()
+
+    def movement(self):
+        path = self.path
+        
+        pos = self.center_bottom
+        waypoint = self.current_waypoint
+        #print(waypoint.pos.x, pos.x)
+
+        if pos.distance_to(waypoint.pos) <= 5:
+            self.current_waypoint = path.pop()
+        
+        if waypoint.pos.x + 1< pos.x:
+            self.smoothSpeedChange(-self.walkSpeed)
+            if waypoint.pos.y < pos.y and waypoint.pointType == "dropdown_R" and self.onGround:
+                self.jump()
+        elif waypoint.pos.x - 1> pos.x:
+            self.smoothSpeedChange(self.walkSpeed)
+            if waypoint.pos.y < pos.y and waypoint.pointType == "dropdown_L" and self.onGround:
+                self.jump()
+        else:
+            self.smoothSpeedChange(0)
+        
+        
+
 
     def update(self):
         super().update()
-        self.direction = self.target.pos-self.pos
-        self.direction.normalize_ip()
-        self.vel.x = self.walkSpeed*self.direction.x
 
+        
+        if self.game.debugging == True:
+            for point in self.ai.waypoints:
+                point.update()
+            self.ai.show_path()
+        self.movement()
+        """self.direction = self.target.pos-self.pos
+        if not self.direction == [0,0]:
+            self.direction.normalize_ip()
+        self.vel.x = self.walkSpeed*self.direction.x
+"""
         

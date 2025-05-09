@@ -1,0 +1,104 @@
+{
+    "spritesheet": "images\\ninja.webp",
+
+    "colorkey": [0, 0, 0],
+    "animations": {
+        "default": {
+            "loop": true,
+            "frames": 1,
+            "column": 0,
+            "row": 0,
+            "direction": "x"
+        },
+        "walk": {
+            "width": 56,
+            "height": 85,
+            "loop": true,
+            "frames": 2,
+            "column": 0,
+            "row": 0,
+            "direction": "x"
+        },
+        "run": {
+            "width": 37,
+            "height": 84,
+            "loop": true,
+            "frames": 1,
+            "column": 2,
+            "row": 0,
+            "direction": "x"
+        },
+        "squat": {
+            "width": 69,
+            "height": 60,
+            "loop": true,
+            "frames": 1,
+            "column": 0,
+            "row": 1,
+            "direction": "x"
+        },
+        "ready_instance": {
+            "width": 63,
+            "height": 75,
+            "loop": true,
+            "frames": 1,
+            "column": 0,
+            "row": 2,
+            "direction": "x"
+        },
+        "vanishing_step": {
+            "width": 70,
+            "height": 71,
+            "loop": true,
+            "frames": 1,
+            "column": 0,
+            "row": 3,
+            "direction": "x"
+        },
+        "fall": {
+            "width": 74,
+            "height": 50,
+            "loop": true,
+            "frames": 1,
+            "column": 3,
+            "row": 0,
+            "direction": "x"
+        },
+        "sword_attack": {
+            "width": 135,
+            "height": 69,
+            "loop": false,
+            "frames": 1,
+            "column": 0,
+            "row": 1,
+            "direction": "x"
+        },
+        "forward_energy_flow": {
+            "width": 90,
+            "height": 69,
+            "loop": true,
+            "frames": 1,
+            "column": 0,
+            "row": 4,
+            "direction": "x"
+        },
+        "special_attack": {
+            "width": 118,
+            "height": 99,
+            "loop": false,
+            "frames": 1,
+            "column": 0,
+            "row": 5,
+            "direction": "x"
+        },
+        "knock_out": {
+            "width": 92,
+            "height": 32,
+            "loop": false,
+            "frames": 1,
+            "column": 0,
+            "row": 6,
+            "direction": "x"
+        }
+    }
+}
