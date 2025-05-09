@@ -1,7 +1,7 @@
 import pygame, math, time
 from objects import Object, MovingObject
 from queue import PriorityQueue
-from AI import AI
+from AI import AI, Waypoint
 
 class Entity(MovingObject):
     def __init__(self, game, x, y, width = 0, height = 0, image = "placeholder.png", animationfile = None, scale = 1, health = 20, center = None):
@@ -23,7 +23,7 @@ class Entity(MovingObject):
     
     def jump(self):
         if self.onGround:
-            self.vel.y = -self.jump_force
+            self.vel.y = -self.jump_force       #https://www.youtube.com/watch?v=bn3ZUCZ0vMo
 
     def getDamage(self, damage):
         if not self.invincible:
@@ -212,15 +212,46 @@ class Enemy(Entity):
         self.walkSpeed = 5
         self.ai = AI(game, self)
 
+        self.path:list = self.ai.find_path(self.pos, self.target.pos)
+        self.path.append(Waypoint(game, self.target.pos.x, self.target.pos.y))
+        self.current_waypoint = self.path.pop()
+
+    def movement(self):
+        path = self.path
+        
+        pos = self.center_bottom
+        waypoint = self.current_waypoint
+        #print(waypoint.pos.x, pos.x)
+
+        if pos.distance_to(waypoint.pos) <= 5:
+            self.current_waypoint = path.pop()
+        
+        if waypoint.pos.x + 1< pos.x:
+            self.smoothSpeedChange(-self.walkSpeed)
+            if waypoint.pos.y < pos.y and waypoint.pointType == "dropdown_R" and self.onGround:
+                self.jump()
+        elif waypoint.pos.x - 1> pos.x:
+            self.smoothSpeedChange(self.walkSpeed)
+            if waypoint.pos.y < pos.y and waypoint.pointType == "dropdown_L" and self.onGround:
+                self.jump()
+        else:
+            self.smoothSpeedChange(0)
+        
+        
+
+
     def update(self):
         super().update()
+
+        
         if self.game.debugging == True:
             for point in self.ai.waypoints:
                 point.update()
             self.ai.show_path()
-        self.direction = self.target.pos-self.pos
+        self.movement()
+        """self.direction = self.target.pos-self.pos
         if not self.direction == [0,0]:
             self.direction.normalize_ip()
         self.vel.x = self.walkSpeed*self.direction.x
-
+"""
         

@@ -7,7 +7,7 @@ Created on Fri May  2 13:44:17 2025
 import pygame  # Laad de pygame module
 clock = pygame.time.Clock()  # Clock object om FPS te regelen
 
-def start_menu(game):
+def selection_menu(game):
     screen = game.screen  # Haal het schermobject van de game op
     game.scene_running = True  # Zet deze scene actief
     game.empty()  # Verwijder alle objecten van vorige scenes

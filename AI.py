@@ -3,6 +3,7 @@ import pygame
 import math
 import queue, random
 from rich import print
+from pygame.math import Vector2
 pygame.init()
 font = pygame.font.SysFont("monospace", 13)
 
@@ -178,20 +179,28 @@ class AI:
             if current[1]:      #als current[1] None is zijn er dus geen punten die 'rechtser' zijn, en er is geen link te maken met de ether
                 point.link(current[1])
 
-    def find_path(self, start:pygame.math.Vector2, end: pygame.math.Vector2, waypoints):
+    def find_path(self, start:pygame.math.Vector2, end: pygame.math.Vector2, waypoints = None):
+        if not waypoints:
+            waypoints = self.waypoints
+        
         start_point = None
         end_point = None
 
         for point in waypoints:
             if start_point is None or manhattan(point.pos, start) < manhattan(start_point.pos, start):
-                start_point = point
+                #if not (raycast(self.game, Vector2(point.pos.x, start.y), point.pos) or raycast(self.game, start, Vector2(point.pos.x, start.y))): #als er geen muur ligt tussen de dichtsbijzijnde waypoint, anders zoekt hij een andere
+                    start_point = point
             if end_point is None or manhattan(point.pos, end) < manhattan(end_point.pos, end):
-                end_point = point
+                #if not (raycast(self.game, Vector2(point.pos.x, start.y), point.pos) or raycast(self.game, start, Vector2(point.pos.x, start.y))):
+                    end_point = point
 
             #print(f"startpoint: {start_point.pos}, start: {start}\n end point: {end_point.pos}, end: {end}")
         
         nodes, path= A_star(start_point, end_point)
-        return get_path(nodes)
+        if nodes:
+            return get_path(nodes)
+        else:
+            return []
     
     def show_path(self):
         entitypos = self.entity.pos
@@ -199,7 +208,10 @@ class AI:
         targetpos = self.entity.target.pos
         #print("targetpos: ", targetpos)
         if len(self.waypoints)>2:
-            pygame.draw.lines(self.game.screen, (0,255,0), False, [point.pos for point in self.find_path(entitypos, targetpos, self.waypoints)],width=5)
+            try:
+                pygame.draw.lines(self.game.screen, (0,255,0), False, [point.pos for point in self.find_path(entitypos, targetpos, self.waypoints)],width=5)
+            except:
+                print("Geen path gevonden!")
 
 def A_star(start_point:Waypoint, end_point:Waypoint):
     start_state = {'point':start_point,'parent':None, 'afgelegd': 0}

@@ -2,7 +2,7 @@ import pygame, time, hashlib
 from entities import *
 from objects import *
 from healthbar import healthbar
-from buttons import SceneButton
+from buttons import *
 from tracker import Tracker
 #from AI import thing, connect
 from deatharea import DeathArea 
@@ -15,14 +15,14 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
     color = (100,255,255)
     ground_level = game.screen_height*0.8
 
-    player = Player(game,50,50,width=50,height=50, animationfile = "animations/test.json", scale = 2)
+    player = Player(game,150,550,width=50,height=50, animationfile = "animations/test.json", scale = 2)
     ground = Object(game, 0,ground_level, width=game.screen_width, height=200,color = (0,100,0))
     walls = [Wall(game,-50,0, width=50, height = screen.get_height()), Wall(game, screen.get_width(),0, width=50, height=screen.get_height())]
-    platforms = [Object(game, 150, ground_level-100, width=200, height=30), Object(game, 650, ground_level-100, width=200, height=30), Object(game, 400, ground_level-200, width=200, height=30)]
+    platforms = [Object(game, 150, ground_level-100, width=200, height=30), Object(game, 650, ground_level-100, width=200, height=30), Object(game, 400, ground_level-200, width=200, height=30), Object(game, 800, ground_level-250, width=200, height=30), Object(game, 900, ground_level-100, width=40, height=100), Object(game, 940, ground_level-100, width=80, height=10)]
     #Object(game, 120,game.screen_height*0.8-30, width=50, height=30), Object(game, 120,game.screen_height*0.8-30, width=50, height=30),Object(game, 400,game.screen_height*0.8-80, width=200, height=30), Object(game, 700,game.screen_height*0.8-80, width=200, height=30),Object(game, 520,525, width=100, height=100), Object(game, 900, 650, 100,40)
     misc = [DeathArea(game, top = -500, bottom=1500, left=-500, right=1800)]
     objects = [player, ground]
-    UI = [healthbar(player, game, width=30), Tracker(game, player, color="blue"), SceneButton(game,screen.get_width()/2,100,"pause de game","pause", border_color=(0,0,0))]#
+    UI = [healthbar(player, game, width=30), Tracker(game, player, color="blue"), PauseButton(game,screen.get_width()/2,100,"pause de game", border_color=(0,0,0))]#
     
 
     game.add(objects)
@@ -30,7 +30,7 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
     game.add(platforms)
     game.add_UI(UI)
 
-    enemy = Enemy(game, 600, 50)
+    enemy = Enemy(game, 600, 650)
     game.add(enemy)
 
     grav = True
@@ -75,7 +75,7 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
                     if event.key == pygame.K_F8:
                         print(game.objects)
                     if event.key == pygame.K_ESCAPE:
-                        pause_menu(game)
+                        game.pause()
                     key = pygame.key.name(event.key)
                     if len(keys)>=8:
                         keys.pop(0)
@@ -110,7 +110,7 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
 
         pygame.display.flip()
 
-def test_menu(game):
+def start_menu(game):
     screen = game.screen
     color = (0,0,0)
 
@@ -133,26 +133,3 @@ def test_menu(game):
         
         pygame.display.flip()
 
-def pause_menu(game):       #deze werkt lichtjes anders: het moet ergens binnen de loop van de andere scenes geroepen worden zodat we dan terug naar de andere 
-    
-    screen = game.screen
-
-    keys = []
-    color = (30,30,30)    
-    UI = [SceneButton(game,500,200,"Back to game","default",width=200,height=50)]   #de naam van de scene kan technisch gezien random zijn, want we keren toch terug naar de vorige scene
-
-    while game.running and game.scene_running:
-        clock.tick(game.fps)
-        screen.fill(color)
-        
-
-        for event in pygame.event.get():
-            match event.type: 
-                case pygame.QUIT:
-                    game.running = False
-        
-        for ui in UI:
-            ui.update()
-    
-        pygame.display.flip()
-    game.scene_running = True #houdt deze true zodat de gepauseerde loop waarin we bezig zijn gwn verder gaat en niet reset

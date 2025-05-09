@@ -73,3 +73,10 @@ class CharacterSelectButton(Button):
 
 	def clicked(self):
 		self.game.character = self.character
+	
+class PauseButton(Button):
+	def __init__(self, game, x, y, text, width=100, height=50, color=(0, 0, 200), border_color=None, image=None, scale=1):
+		super().__init__(game, x, y, text, width, height, color, border_color, image, scale)
+
+	def clicked(self):
+		self.game.pause()
