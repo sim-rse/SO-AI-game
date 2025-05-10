@@ -21,8 +21,8 @@ def selection_menu(game):
     # Lijst van personages en hun beschrijvingen
     characters = ["naruto", "Iron man"]  # Voorbeeld namen van personages
     character_descriptions = [
-        "nog te doen",  # Beschrijving voor KungFuKat
-        "repulsor, schouderraket, supersonic charge en system reboot"  # Beschrijving voor RoboRik
+        "nog te doen",  # Beschrijving voor naruto
+        "repulsor, schouderraket, supersonic charge en system reboot"  # Beschrijving voor iron man
     ]
 
     selected_char = 0  # Index van gekozen personage
