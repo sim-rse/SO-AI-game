@@ -100,9 +100,10 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
         # Achtergrond weergeven (blit de achtergrond op de screen)
         screen.fill(color=color)  # Indien achtergrond niet geladen is, vul het scherm met een default kleur
 
-        # Achtergrond laden indien beschikbaar
+        # Laad de achtergrond en schaal deze naar het schermformaat
         if game.background:
-            screen.blit(game.background, (0, 0))  # Tekent de geselecteerde achtergrond op positie (0, 0)
+            game.background = pygame.transform.scale(game.background, (screen.get_width(), screen.get_height()))  # Schaal naar het scherm
+            screen.blit(game.background, (0, 0))  # Tekent de geschaalde achtergrond op positie (0, 0)
 
         #updaten van de 3 verschillende layers
         for i in misc:      
