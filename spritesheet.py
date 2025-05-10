@@ -1,5 +1,6 @@
 import pygame
 
+# Deze klasse wordt gebruikt om een spritesheet in te laden en frames te extraheren
 class Spritesheet:                  #getframe van video op youtube gehaald: https://www.youtube.com/watch?v=M6e3_8LHc7A
     def __init__(self, path, width, height, colorkey = (0,0,0)):            #alle sprites op de spritesheet MOETEN dezelde dimensies hebben (neem dus best een spritesheet per animatie OF per geanimeerde personnage/object als zijn groote niet verandert)
         #path: bestandsnaam of pad naar de spritesheet
