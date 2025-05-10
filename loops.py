@@ -15,7 +15,7 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
     color = (100,255,255)
     ground_level = game.screen_height*0.8
 
-    player = Player(game,150,550,width=50,height=50, animationfile = "animations/ironman.json", scale = 2)
+    player = Player(game,150,550,width=50,height=50, animationfile = "animations/ninja.json", scale = 0.5)
     ground = Object(game, 0,ground_level, width=game.screen_width, height=200,color = (0,100,0))
     walls = [Wall(game,-50,0, width=50, height = screen.get_height()), Wall(game, screen.get_width(),0, width=50, height=screen.get_height())]
     platforms = [Object(game, 150, ground_level-100, width=200, height=30), Object(game, 650, ground_level-100, width=200, height=30), Object(game, 400, ground_level-200, width=200, height=30), Object(game, 800, ground_level-250, width=200, height=30), Object(game, 900, ground_level-100, width=40, height=100), Object(game, 940, ground_level-100, width=80, height=10)]
@@ -105,8 +105,8 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
         for i in game.UI:
             i.update()
             
-        """label = font.render(f"Player position   x: {round(player.pos.x,2)} y: {round(player.pos.y,2)}", 1, (0,0,0))
-        screen.blit(label, (20, 20))"""
+        label = font.render(f"Player position   x: {round(player.pos.x,2)} y: {round(player.pos.y,2)}", 1, (0,0,0))
+        screen.blit(label, (20, 20))
 
         pygame.display.flip()
 

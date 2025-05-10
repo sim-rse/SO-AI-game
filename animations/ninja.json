@@ -1,104 +1,108 @@
-{
-    "spritesheet": "images\\ninja.webp",
-
-    "colorkey": [0, 0, 0],
-    "animations": {
-        "default": {
-            "loop": true,
-            "frames": 1,
-            "column": 0,
-            "row": 0,
-            "direction": "x"
-        },
-        "walk": {
-            "width": 56,
-            "height": 85,
-            "loop": true,
-            "frames": 2,
-            "column": 0,
-            "row": 0,
-            "direction": "x"
-        },
-        "run": {
-            "width": 37,
-            "height": 84,
-            "loop": true,
-            "frames": 1,
-            "column": 2,
-            "row": 0,
-            "direction": "x"
-        },
-        "squat": {
-            "width": 69,
-            "height": 60,
-            "loop": true,
-            "frames": 1,
-            "column": 0,
-            "row": 1,
-            "direction": "x"
-        },
-        "ready_instance": {
-            "width": 63,
-            "height": 75,
-            "loop": true,
-            "frames": 1,
-            "column": 0,
-            "row": 2,
-            "direction": "x"
-        },
-        "vanishing_step": {
-            "width": 70,
-            "height": 71,
-            "loop": true,
-            "frames": 1,
-            "column": 0,
-            "row": 3,
-            "direction": "x"
-        },
-        "fall": {
-            "width": 74,
-            "height": 50,
-            "loop": true,
-            "frames": 1,
-            "column": 3,
-            "row": 0,
-            "direction": "x"
-        },
-        "sword_attack": {
-            "width": 135,
-            "height": 69,
-            "loop": false,
-            "frames": 1,
-            "column": 0,
-            "row": 1,
-            "direction": "x"
-        },
-        "forward_energy_flow": {
-            "width": 90,
-            "height": 69,
-            "loop": true,
-            "frames": 1,
-            "column": 0,
-            "row": 4,
-            "direction": "x"
-        },
-        "special_attack": {
-            "width": 118,
-            "height": 99,
-            "loop": false,
-            "frames": 1,
-            "column": 0,
-            "row": 5,
-            "direction": "x"
-        },
-        "knock_out": {
-            "width": 92,
-            "height": 32,
-            "loop": false,
-            "frames": 1,
-            "column": 0,
-            "row": 6,
-            "direction": "x"
+[
+    
+    {
+        "spritesheet": "images\\ninja_walk_2.png",
+        "colorkey": [255, 255, 255],
+        "width": 37,
+        "height": 107,
+        "animations": {
+            "walk": {
+                "loop": true,
+                "frames": 2,
+                "column": 0,
+                "row": 0,
+                "direction": "x"
+            }
+        }
+    },
+    {
+        "spritesheet": "images\\ninja_run2.png",
+        "colorkey": [255, 255, 255],
+        "width": 32,
+        "height": 107,
+        "animations": {
+            "run": {
+                "loop": true,
+                "frames": 1,
+                "column": 2,
+                "row": 0,
+                "direction": "x"
+            }
+        }
+    },
+    {
+        "spritesheet": "images\\ninja_fall2.png",
+        "colorkey": [255, 255, 255],
+        "width": 58,
+        "height": 107,
+        "animations": {
+            "squat": {
+                "loop": true,
+                "frames": 1,
+                "column": 0,
+                "row": 1,
+                "direction": "x"
+            }
+        }
+    },
+    {
+        "spritesheet": "images\\ninja_sword_attack2.png",
+        "colorkey": [255, 255, 255],
+        "width": 104,
+        "height": 107,
+        "animations": {
+            "ready_instance": {
+                "loop": true,
+                "frames": 1,
+                "column": 0,
+                "row": 2,
+                "direction": "x"
+            }
+        }
+    },
+    {
+        "spritesheet": "images\\ninja_highkick2.png",
+        "colorkey": [255, 255, 255],
+        "width": 89,
+        "height": 107,
+        "animations": {
+            "vanishing_step": {
+                "loop": true,
+                "frames": 1,
+                "column": 0,
+                "row": 3,
+                "direction": "x"
+            }
+        }
+    },
+    {
+        "spritesheet": "images\\ninja_special_attack2.png",
+        "colorkey": [255, 255, 255],
+        "width": 98,
+        "height": 107,
+        "animations": {
+            "fall": {
+                "loop": true,
+                "frames": 1,
+                "column": 3,
+                "row": 0,
+                "direction": "x"
+            }
+        }
+    },
+    {
+        "spritesheet": "images\\ninja_knockout2.png",
+        "colorkey": [255, 255, 255],
+        "width": 88,
+        "height": 107,
+        "animations": {
+            "sword_attack": {
+                "loop": false,
+                "frames": 1,
+                "column": 0,
+                "row": 1,
+                "direction": "x"
+            }
         }
     }
-}
+]    
