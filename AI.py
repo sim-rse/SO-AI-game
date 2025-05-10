@@ -138,13 +138,13 @@ class AI:
 
         #checken of er geen punten op dezelfde plaats zijn
         coords = []
+        new_points = []
         for point in waypoints:
-                if point.pos in coords:
-                    print(f"Removed duplicate waypoint at {point.pos}")
-                    waypoints.remove(point)
-                else:
+                if point.pos not in coords:
                     coords.append(point.pos)
-        return waypoints
+                    new_points.append(point)
+
+        return new_points
 
     def connectWaypoints(self):
         entity = self.entity
@@ -162,22 +162,26 @@ class AI:
                                 current = (point.pos.distance_to(newPoint.pos), newPoint)
                                 #print(f"Newvector at same height: {}")
 
-                    if point.pos.y < newPoint.pos.y and point.pos.x>point.pos.y:
-                        pass
+                    #if point.pos.y < newPoint.pos.y and point.pos.x>point.pos.y:
+                    #    pass
+            
             if current[1]:      #als current[1] None is zijn er dus geen punten die 'rechtser' zijn, en er is geen link te maken met de ether
                 point.link(current[1])
-            current = (-1, None)
+            
+            current2 = (-1, None)
             for newPoint in waypoints:   
                 if newPoint != point: 
 
                     if point.pointType == "dropdown_R" and (newPoint.pos.y <= point.pos.y and point.pos.y - entity.jumpheight <= newPoint.pos.y) and (newPoint.pos.x >= point.pos.x and point.pos.x + (entity.jumpwidth + 10) >= newPoint.pos.x):     #de +10 is een soort van marge aangezien de entities niet direct hun maximumsnelheid bereiken
-                        current = (point.pos.distance_to(newPoint.pos), newPoint)
+                        current2 = (point.pos.distance_to(newPoint.pos), newPoint)
 
                     if point.pointType == "dropdown_L" and (newPoint.pos.y <= point.pos.y and point.pos.y - entity.jumpheight <= newPoint.pos.y) and (newPoint.pos.x <= point.pos.x and point.pos.x - (entity.jumpwidth + 10) <= newPoint.pos.x):     #de +10 is een soort van marge aangezien de entities niet direct hun maximumsnelheid bereiken
-                        current = (point.pos.distance_to(newPoint.pos), newPoint)
+                        current2 = (point.pos.distance_to(newPoint.pos), newPoint)
 
             if current[1]:      #als current[1] None is zijn er dus geen punten die 'rechtser' zijn, en er is geen link te maken met de ether
                 point.link(current[1])
+            if current2[1]:
+                point.link(current2[1])
 
     def find_path(self, start:pygame.math.Vector2, end: pygame.math.Vector2, waypoints = None):
         if not waypoints:
@@ -190,6 +194,7 @@ class AI:
             if start_point is None or manhattan(point.pos, start) < manhattan(start_point.pos, start):
                 #if not (raycast(self.game, Vector2(point.pos.x, start.y), point.pos) or raycast(self.game, start, Vector2(point.pos.x, start.y))): #als er geen muur ligt tussen de dichtsbijzijnde waypoint, anders zoekt hij een andere
                     start_point = point
+
             if end_point is None or manhattan(point.pos, end) < manhattan(end_point.pos, end):
                 #if not (raycast(self.game, Vector2(point.pos.x, start.y), point.pos) or raycast(self.game, start, Vector2(point.pos.x, start.y))):
                     end_point = point
@@ -220,7 +225,6 @@ def A_star(start_point:Waypoint, end_point:Waypoint):
     q.put((0,random_value,start_state))
     
     traveled = []
-    traveled_set = set()  # Faster lookup for already traveled nodes
     
     #print(f"----------------------------------------------\nWe moeten van punt: {start_point} met coordinaten {start_point.pos}\nNaar punt {end_point} met coordinaten {end_point.pos}")
     while q.empty() == False:
@@ -248,7 +252,7 @@ def A_star(start_point:Waypoint, end_point:Waypoint):
             #else:
                 #print(f">> [{numb}/{len(directions)}] Het nieuwe punt: {new_point}, link van waypoint {state['point']} is al in traveled: {traveled}")
         #print(f">> done with waypoint: {state["point"]}")
-    print(f"Geen point gevonden!")
+    #print(f"Geen point gevonden!")
     return None, traveled
 
 def get_path(my_node):

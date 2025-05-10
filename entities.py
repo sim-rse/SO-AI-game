@@ -213,8 +213,8 @@ class Enemy(Entity):
         self.target = game.players[0]
         self.walkSpeed = 5
         self.ai = AI(game, self)
-
-        self.path:list = self.ai.find_path(self.pos, self.target.pos)
+        self.getPath(self.target)
+        
         #self.path.append(Waypoint(game, self.target.pos.x, self.target.pos.y))
         self.current_waypoint = self.path.pop()
         
@@ -231,6 +231,11 @@ class Enemy(Entity):
         if len(path) !=0:
             if pos.distance_to(waypoint.pos) <= 5:
                 self.current_waypoint = path.pop()
+            for num, i in enumerate(path):
+                if pos.distance_to(waypoint.pos) > pos.distance_to(i.pos):
+                    self.path = path[:num]
+                    self.current_waypoint = path.pop()
+        waypoint = self.current_waypoint
         
         if waypoint.pos.x + 1< pos.x:
             self.smoothSpeedChange(-self.walkSpeed)
@@ -242,19 +247,39 @@ class Enemy(Entity):
                 self.jump()
         else:
             self.smoothSpeedChange(0)
-        
-        
+    
+    def getPath(self, target):
+        path  = self.ai.find_path(self.pos, target.pos)
+        if path != None:
+            self.path:list = path 
+        else:
+            print("Path not found!!")
+
+    def show_path(self):
+        try:
+            pygame.draw.lines(self.game.screen, (0,255,0), False, [point.pos for point in self.path], width=5)
+        except:
+            pass
+
+    def actionHandler(self):
+        distance_from_target = self.pos.distance_to(self.target.pos)
+
+        if distance_from_target < 300:
+            pass
+        elif 300 < distance_from_target < 800:
+            pass
+        else:
+            self.getPath()
+
 
 
     def update(self):
         super().update()
-
-        
         if self.game.debugging == True:
             for point in self.ai.waypoints:
-                point.update()
-            self.ai.show_path()
-        self.movement()
+                point.update()              #tekent de punten
+            self.show_path()                #toont de pad tussen de punten
+        self.movement()                     #beslist wat zijn beweging moet zijn
         """self.direction = self.target.pos-self.pos
         if not self.direction == [0,0]:
             self.direction.normalize_ip()
