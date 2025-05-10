@@ -1,0 +1,105 @@
+[
+    {
+        "spritesheet": "images/ninja/default.png",
+        "width":49,
+        "height":78,
+        "colorkey":[0,0,0],
+        "animations":{
+            "default":{
+                "loop": true,
+                "frames": 9,
+                "column":0,
+                "row":0,
+                "direction":"x"
+            }, 
+            "shoot":{
+                "loop": false,
+                "frames": 2,
+                "column":10,
+                "row":0,
+                "direction":"x"
+            }, 
+            "jump":{
+                "loop": true,
+                "frames": 1,
+                "column":11,
+                "row":0,
+                "direction":"x"
+            }, 
+            "fall":{
+                "loop": true,
+                "frames": 1,
+                "column":12,
+                "row":0,
+                "direction":"x"
+            }
+        }
+    },
+    {
+        "spritesheet": "images/ninja/jump.png",
+        "width":31,
+        "height":107,
+        "colorkey":[0,0,0],
+        "animations":{
+            "fallh":{
+                "loop": true,
+                "frames": 1,
+                "column":0,
+                "row":0,
+                "direction":"x"
+            }, 
+            "jumph":{
+                "loop": true,
+                "frames": 1,
+                "column":1,
+                "row":0,
+                "direction":"x"
+            }
+        }
+    },
+    {
+        "spritesheet": "images/ninja/punch.png",
+        "width":85,
+        "height":78,
+        "colorkey":[255,255,255],
+        "animations":{
+            "punch":{
+                "loop": true,
+                "frames": 1,
+                "column":0,
+                "row":0,
+                "direction":"x"
+            }
+        }
+    },
+    {
+        "spritesheet": "images/ninja/die.png",
+        "width":49,
+        "height":78,
+        "colorkey":[0,0,0],
+        "animations":{
+            "die":{
+                "loop": true,
+                "frames": 3,
+                "column":0,
+                "row":0,
+                "direction":"x"
+            }
+        }
+    },
+    {
+        "spritesheet": "images/ninja/walk.png",
+        "width":70,
+        "height":78,
+        "colorkey":[0,0,0],
+        "animations":{
+            "walk":{
+                "loop": true,
+                "frames": 5,
+                "column":0,
+                "row":0,
+                "direction":"x"
+            }
+        }
+    }
+]

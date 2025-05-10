@@ -31,6 +31,9 @@ class Game():
         pygame.image.load("images/projectimage2.jpg").convert(),
         pygame.image.load("images/projectimage3.jpg").convert()
         ]
+
+        for num, img in enumerate(self.backgrounds):
+            self.backgrounds[num] = pygame.transform.scale(img, (screen.get_width(), screen.get_height()))
         self.background_index = 0
     
     @property
@@ -85,7 +88,7 @@ class Game():
         keys = []
         color = (30,30,30)
         width = 200
-        UI = [SceneButton(self,screen.get_width()/2 - width/2,screen.get_height()*0.4,"Back to game","default",width=width,height=50), SceneButton(self,screen.get_width()/2 - width/2,screen.get_height()*0.5,"Quit","start_menu",width=width,height=50)]   #de naam van de scene kan technisch gezien random zijn, want we keren toch terug naar de vorige scene
+        UI = [SceneButton(self,screen.get_width()/2 - width/2,screen.get_height()*0.4,"Back to game","default",width=width,height=50), SceneButton(self,screen.get_width()/2 - width/2,screen.get_height()*0.5,"Start Menu","start_menu",width=width,height=50)]   #de naam van de scene kan technisch gezien random zijn, want we keren toch terug naar de vorige scene
 
         pygame.draw.rect(screen, (50,50,50,200), pygame.Rect(screen.get_width()*0.2, screen.get_height()*0.2, screen.get_width()*0.6, screen.get_height()*0.6))
         pygame.draw.rect(screen, (255,0,0,200), pygame.Rect(screen.get_width()*0.22, screen.get_height()*0.22, screen.get_width()*0.56, screen.get_height()*0.56), width=10)
