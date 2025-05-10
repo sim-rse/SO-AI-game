@@ -4,8 +4,7 @@ from loops import *
 from objects import *
 from entities import *
 from start_menu import selection_menu
-from powerrup import PowerUp
-from game_end import game_over
+from powerrup import PowerUp 
 
 pygame.init()
 
@@ -18,7 +17,7 @@ class Game():
 
         self.running = True
 
-        self.scene = "default"
+        self.scene = "menu"
         self.scene_running = False
         self.gravity = 1
 
@@ -32,16 +31,8 @@ class Game():
         pygame.image.load("images/projectimage3.jpg").convert()
         ]
         self.background_index = 0
-    
-    @property
-    def background(self):
-        return self.backgrounds[self.background_index]
-    
-    @background.setter
-    def background(self, value):
-        if type(value)==int:
-            self.background_index = value
-    
+        self.background = self.backgrounds[self.background_index]
+
     def add(self,obj):
         if type(obj) == list:
             for i in obj:
@@ -81,7 +72,7 @@ class Game():
     def pause(self):       #deze scene werkt lichtjes anders: het moet ergens binnen de loop van de andere scenes geroepen worden zodat we dan terug naar de andere 
                                 #kheb het ook hiet gezet ipv in loops.py door circulaire imports
         screen: pygame.display = self.screen
-        current_scene = self.scene
+
         keys = []
         color = (30,30,30)
         width = 200
@@ -112,8 +103,7 @@ class Game():
                 ui.update()
         
             pygame.display.flip()
-        if self.scene == current_scene:
-            self.scene_running = True #houdt deze true zodat de gepauseerde loop waarin we bezig zijn gwn verder gaat en niet reset    
+        self.scene_running = True #houdt deze true zodat de gepauseerde loop waarin we bezig zijn gwn verder gaat en niet reset    
     @property
     def entities(self):
         return [ent for ent in self.objects if isinstance(ent, Entity)]
@@ -159,10 +149,6 @@ while game.running:
             selection_menu(game)
         case "pause":
             game.pause()
-        case 'game_over':
-            game_over(game)
-        case "quit":
-            quit(game)
 
 
 pygame.quit()

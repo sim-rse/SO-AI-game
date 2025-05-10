@@ -1,4 +1,4 @@
-import pygame, time, hashlib
+import pygame, time, hashlib, random
 from entities import *
 from objects import *
 from healthbar import healthbar
@@ -6,6 +6,7 @@ from buttons import *
 from tracker import Tracker
 #from AI import thing, connect
 from deatharea import DeathArea 
+from powerrup import spawn_random_powerup
 clock = pygame.time.Clock()
 
 def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (een voor de menu een voor de startscreen en dan een voor het spel)
@@ -22,7 +23,7 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
     #Object(game, 120,game.screen_height*0.8-30, width=50, height=30), Object(game, 120,game.screen_height*0.8-30, width=50, height=30),Object(game, 400,game.screen_height*0.8-80, width=200, height=30), Object(game, 700,game.screen_height*0.8-80, width=200, height=30),Object(game, 520,525, width=100, height=100), Object(game, 900, 650, 100,40)
     misc = [DeathArea(game, top = -500, bottom=1500, left=-500, right=1800)]
     objects = [player, ground]
-    UI = [healthbar(player, game, width=30), Tracker(game, player, color="blue"), PauseButton(game,screen.get_width()/2,100,"pause de game", border_color=(0,0,0))]#
+    UI = [healthbar(player, game, width=30), Tracker(game, player, color="blue")]#PauseButton(game,screen.get_width()/2,100,"pause de game", border_color=(0,0,0))
     
 
     game.add(objects)
@@ -37,6 +38,7 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
     font = pygame.font.SysFont("monospace", 15)
 
     last_time = time.time()
+    last_powerup_time = time.time()
     while game.scene_running and game.running:
         clock.tick(game.fps)
 
@@ -73,7 +75,7 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
                     if event.key == pygame.K_F7:
                         game.scene_running = False
                     if event.key == pygame.K_F8:
-                        print(game.objects)
+                        spawn_random_powerup(game)
                     if event.key == pygame.K_ESCAPE:
                         game.pause()
                     key = pygame.key.name(event.key)
@@ -96,6 +98,11 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
 
         screen.fill(color=color) #blit(self.background)
 
+        """if time.time() - last_powerup_time > 20:
+            chance  = random.randint(0,100)
+            if chance <= 30:
+                spawn_random_powerup(game)"""
+
         #updaten van de 3 veschillende layers
         for i in misc:      
             i.update()
@@ -113,8 +120,11 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
 def start_menu(game):
     screen = game.screen
     color = (0,0,0)
+    font = pygame.font.SysFont("monospace", 50)
+    label = font.render("Untitled Fight Game", 1, (255,255,255))
 
-    UI = [SceneButton(game,100,200,"Back to game","default",width=100,height=30)]
+    width = 300
+    UI = [SceneButton(game,screen.get_width()/2 - width/2,500,"Play","menu",width=width,height=50), SceneButton(game,screen.get_width()/2 - width/2,600,"Quit","quit",width=width,height=50)]
 
     game.add_UI(UI)
     while game.running and game.scene_running:
@@ -133,3 +143,6 @@ def start_menu(game):
         
         pygame.display.flip()
 
+def quit(game):
+    print("quitting")
+    game.running = False

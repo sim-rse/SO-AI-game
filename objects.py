@@ -26,6 +26,7 @@ class Object:
             #print(f"type texture :{type(self.texture)}")
         #elif os.path.exists(pad naar animationfile met de naam van de classe zodat we het niet telkens moeten bijgeven)
         elif image:
+            print(image)
             self.texture = pygame.image.load(image) #laden van de texture (jargon voor afbeelding fyi)
             self.texture = pygame.transform.scale(self.texture, (self.width*scale, self.height*scale))
             
