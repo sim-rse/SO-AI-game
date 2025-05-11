@@ -26,7 +26,7 @@ class PowerUp(MovingObject):
         """Elke frame wordt deze functie uitgevoerd om de power-up te updaten"""
 
         # Kijk of hij een speler raakt
-        for speler in game.players:
+        for speler in game.fighters:
             if self.collides_with(speler):                    # Als ze botsen
                 self.apply(speler)                            # Geef het effect aan de speler
                 game.remove(self)                             # Verwijder de power-up

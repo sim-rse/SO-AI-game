@@ -1,7 +1,7 @@
 import pygame, time, random
 from objects import MovingObject
 from queue import PriorityQueue
-from AI import AI
+from AI import AI, Waypoint
 from powerup import PowerUp
 
 class Entity(MovingObject):
@@ -16,8 +16,8 @@ class Entity(MovingObject):
 
         self.collider = False
         self.invincible = False
-        self.jump_force = 16
-        self.walkSpeed = 10
+        self.jump_force = 18
+        self.walkSpeed = 12
 
         self.punch_cooldown = 0.5
         self.shoot_cooldown = 1 
@@ -30,6 +30,8 @@ class Entity(MovingObject):
         self.current_action_length = 0
 
         self.protecting = False
+
+        self.birth_time = time.time()
     
     def die(self):
         self.playanimation("die")
@@ -39,7 +41,7 @@ class Entity(MovingObject):
             self.vel.y = -self.jump_force       #https://www.youtube.com/watch?v=bn3ZUCZ0vMo
 
     def getDamage(self, damage):
-        if not self.invincible:
+        if not (self.invincible or self.protecting):
             self.health -= damage
         self.playanimation("get_damaged")
 
@@ -97,11 +99,11 @@ class Entity(MovingObject):
         return False
 
 class Projectile(Entity):
-    def __init__(self, game, x, y, width=0, height=0, image="placeholder.png", animationfile=None, scale=1, health=20, target = None, owner = None, exploding = False):
+    def __init__(self, game, x, y, width=0, height=0, image="images/bomb.png", animationfile=None, scale=1, health=20, target = None, owner = None, exploding = False):
         super().__init__(game, x, y, width, height, image, animationfile, scale, health)
 
         self.explosionrange = 5
-        self.flyspeed = 2
+        self.flyspeed = 5
         self.exploding = exploding
 
         self.owner = owner
@@ -152,7 +154,7 @@ class Explosion(Entity):
                 ent.getDamage(self.strength)
 
                 knockback_direction = pygame.math.Vector2(ent.center.x - self.center.x,ent.center.y-self.center.y)
-                print(knockback_direction.xy)
+                #print(knockback_direction.xy)
                 if not knockback_direction.xy == [0,0]:
                     knockback_direction.normalize_ip()      #normaliseert de vector als het niet 0 is
 
@@ -170,12 +172,12 @@ class Explosion(Entity):
         self.game.remove(self)
 
 class Player(Entity):
-    def __init__(self, game, x, y, width = 0, height = 0, image = "placeholder.png", animationfile = None, scale = 1):
+    def __init__(self, game, x, y, width = 0, height = 0, image = "placeholder.png", animationfile = None, scale = 1, health = 100):
         super().__init__(game, x, y, width, height, image, animationfile, scale)
         self.walkSpeed = 10
         self.shoot_key_hold = False
         self.sneaking = False
-        self.health = 50
+        self.health = health
 
         self.last_punch_time = 0
 
@@ -183,25 +185,29 @@ class Player(Entity):
         keys = pygame.key.get_pressed()
         #beweging van de speler
         accel = [0,0]
-        if keys[pygame.K_RIGHT]:
-            accel[0] += self.walkSpeed
-        if keys[pygame.K_LEFT]:
-            accel[0] += -self.walkSpeed
-        if keys[pygame.K_UP]:
-            self.jump()                 #te vinden bij Entity class
-        if keys[pygame.K_DOWN]:
-            self.sneaking = True
-            self.blocking = True
-        else:
-            self.sneaking = False
-            self.blocking = False
-        if keys[pygame.K_SPACE]:
-            if time.time() - self.last_punch_time>0.5: 
-                self.punch()
-                self.last_punch_time = time.time()
+        if not self.protecting:     #als de player zich beschermt kan hij niets anders doen
+            if keys[pygame.K_RIGHT]:
+                accel[0] += self.walkSpeed
+            if keys[pygame.K_LEFT]:
+                accel[0] += -self.walkSpeed
+            if keys[pygame.K_UP]:
+                self.jump()                 #te vinden bij Entity class
+            
+            if keys[pygame.K_SPACE]:
+                if time.time() - self.last_punch_time>0.5: 
+                    self.punch()
+                    self.last_punch_time = time.time()
+
         self.smoothSpeedChange(accel[0])        #indien we deze methode gebruiken blijft de speler staan indien we zowel links en rechts indrukken, en als je een toets loslaat heb je ook geen problemen met de richting die niet juist kan zijn
         
         
+        if keys[pygame.K_DOWN]:
+            self.sneaking = True
+            self.protecting = True
+        else:
+            self.sneaking = False
+            self.protecting = False
+                
         if keys[pygame.K_a]:
             """if not self.last_press:
                 self.last_press = time.time()
@@ -217,7 +223,7 @@ class Player(Entity):
 
             
         if keys[pygame.K_z]:
-            if not self.shoot_key_hold:
+            if not self.shoot_key_hold and not self.protecting:
                 self.shoot_key_hold = True
                 if self.target:
                     target_position = self.target.pos
@@ -235,8 +241,8 @@ class Player(Entity):
             self.playanimation("shoot")
         elif self.punching:
             self.playanimation("punch")
-        elif self.sneaking:
-            self.playanimation("sneak")
+        elif self.protecting:
+            self.playanimation("protect")
         elif self.vel.y<0:
             self.playanimation("jump")
         elif self.onGround and self.vel.x !=0:
@@ -266,7 +272,10 @@ class Enemy(Entity):
         self.getPath(self.target)
         
         #self.path.append(Waypoint(game, self.target.pos.x, self.target.pos.y))
-        self.current_waypoint = self.path.pop()
+        if len(self.path)>0:
+            self.current_waypoint = self.path.pop()
+        else:
+            self.current_waypoint = Waypoint(game,x,y)
         
     def die(self):
         self.game.scene = "game_over"
@@ -278,6 +287,8 @@ class Enemy(Entity):
             self.playanimation("shoot")
         elif self.punching:
             self.playanimation("punch")
+        elif self.protecting:
+            self.playanimation("protect")
         elif self.vel.y<0:
             self.playanimation("jump")
         elif self.onGround and self.vel.x !=0:
@@ -300,6 +311,8 @@ class Enemy(Entity):
                 if pos.distance_to(waypoint.pos) > pos.distance_to(i.pos):
                     self.path = path[:num]
                     self.current_waypoint = path.pop()
+        else:
+            self.getPath(self.target)
         waypoint = self.current_waypoint
         
         if waypoint.pos.x + 10< pos.x:                                          #als de enemy in een 10 pixel range is kan het stoppen (dit voorkomt heen en weer gaan)
@@ -318,7 +331,6 @@ class Enemy(Entity):
         if path != []:
             self.path:list = path
             self.current_waypoint = self.path.pop()
-            print("we gaan naar", self.current_waypoint, "op positie", self.current_waypoint.pos)
         else:
             self.path = []
             print("Path not found!!")
@@ -336,28 +348,42 @@ class Enemy(Entity):
             match action:
                 case "attack":
                     self.getPath(self.target)
-                    self.current_action_length = 10
+                    self.current_action_length = 4
                 case "idle":
                     self.current_action_length = 2
                 case "protect":
                     self.current_action_length = 1.5
                 case "runaway":
-                    self.current_action_length = 5
+                    furthest = None
+                    for i in self.ai.waypoints:
+                        if not furthest or i.pos.distance_to(self.target.pos) > furthest.pos.distance_to(self.target.pos):
+                            furthest = i
+                    if furthest:
+                        self.getPath(furthest)
+                    self.current_action_length = 3
                 case "shoot":
                     self.current_action_length = 2
                     self.shoot(self.target.pos)
                 case "powerup":
+                    closest = None
+                    for i in self.game.powerups:
+                        if not closest or i.pos.distance_to(self.pos) < closest.pos.distance_to(self.pos):
+                            closest = i
+                    if closest:
+                        self.getPath(closest)
                     self.current_action_length = 10
                     
             self.last_action_time = time.time()
             self.current_action = action
+
         action = self.current_action        
         self.protecting = False
         #updaten van de acties
         match action:
                 case "attack":
-                    if len(self.path)<2:
+                    if len(self.path)<1:
                         self.getPath(self.target)
+                    #print(self.path)
                     self.movement()
                     if self.collideswith(self.target):
                         self.punch()
@@ -378,20 +404,27 @@ class Enemy(Entity):
         #if actioncooldown is 0: choose new action
         distance_from_target = self.pos.distance_to(self.target.pos)
 
-        health_diff = self.target.health - self.health 
-        if health_diff<0: health_diff = 0
+        diff = self.target.health - self.health 
+
+        #de health diff's vertellen hoeveel hp de enemy of de speler minder heeft dan de andere (alles < 0 wordt 0)
+        if diff<0: 
+            player_health_diff = -diff
+            health_diff = 0
+        else:
+            health_diff = diff
+            player_health_diff = 0
 
         powerup_spawned = [i for i in self.game.objects if isinstance(i, PowerUp)] != []
             
         powerup_weight = powerup_spawned*health_diff#*self.pos.distance_to powerup ofz
 
         if distance_from_target < 300:
-            attack_weight = self.ready_to_punch * 20
+            attack_weight = self.ready_to_punch * 30 + player_health_diff*2
             runaway_weight = (not self.ready_to_punch)*2*health_diff
             protect_weight = (not self.ready_to_punch)*10 + health_diff
             return random.choices(["attack", "idle", "protect", "runaway"], weights = [attack_weight, 5,protect_weight, runaway_weight]).pop()      #pop omdat het een list returnt
         elif 300 < distance_from_target < 800:
-            attack_weight = self.ready_to_punch * 10
+            attack_weight = self.ready_to_punch * 20 + player_health_diff*2
             runaway_weight = (not (self.ready_to_punch or self.ready_to_shoot))*health_diff
             protect_weight = (not (self.ready_to_punch or self.ready_to_shoot))*5 + health_diff
             shoot_weight = self.ready_to_shoot * 10 + health_diff

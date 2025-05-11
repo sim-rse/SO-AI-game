@@ -11,17 +11,55 @@ clock = pygame.time.Clock()
 
 def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (een voor de menu een voor de startscreen en dan een voor het spel)
     screen = game.screen
-
     keys = []
     color = (100,255,255)  # Kleur achtergrond voor als de achtergrond niet geladen is
-    ground_level = game.screen_height*0.8
 
-    player = Player(game,150,550,width=50,height=50, animationfile = "animations/ironman.json", scale = 1)
-    ground = Object(game, 0,ground_level, width=game.screen_width, height=200,color = (0,100,0))
-    walls = [Wall(game,-50,0, width=50, height = screen.get_height()), Wall(game, screen.get_width(),0, width=50, height=screen.get_height())]
-    platforms = [Object(game, 150, ground_level-100, width=200, height=30), Object(game, 650, ground_level-100, width=200, height=30), 
-                 Object(game, 400, ground_level-200, width=200, height=30), Object(game, 800, ground_level-250, width=200, height=30),
-                 Object(game, 900, ground_level-100, width=40, height=100), Object(game, 940, ground_level-100, width=80, height=10)]
+
+    ground_level = game.screen_height*0.85
+    match game.arena:
+        case "jungle":
+            background = pygame.image.load("images/projectimage1.jpg").convert()
+
+            ground = Object(game, 0,ground_level, width=game.screen_width, height=200,color = (0,100,0))
+            walls = [Wall(game,-50,0, width=50, height = screen.get_height()), Wall(game, screen.get_width(),0, width=50, height=screen.get_height())]
+            platforms = [Object(game, 150, ground_level-100, width=200, height=30), Object(game, 800, ground_level-100, width=200, height=30), 
+                        Object(game, 490, ground_level-200, width=220, height=30),
+                        Object(game, 1100, ground_level-100, width=40, height=100), Object(game, 1100, ground_level-120, width=80, height=20)]
+        case "mounts":
+            background = pygame.image.load("images/projectimage2.jpg").convert()
+
+            platforms = [Object(game, 850, ground_level-100, width=200, height=30), 
+                         Object(game, 1150, ground_level-200, width=200, height=30),
+                         Object(game, 1350, ground_level-300, width=100, height=30)]
+            ground = Object(game, 0,ground_level, width=game.screen_width, height=200,color = (0,100,0))
+            walls = []
+        case "mounts2":
+            background = pygame.image.load("images/projectimage3.jpg").convert()
+
+            platforms = [Object(game, 550, ground_level-100, width=200, height=30), 
+                         Object(game, 320, ground_level-200, width=200, height=30),
+                         Object(game, 870, ground_level-200, width=100, height=30),]
+            width = game.screen_width*0.8
+            ground = Object(game,game.screen_width*0.1,ground_level, width=width, height=30,color = (0,50,0))
+            walls = []
+        case _:
+            background = pygame.image.load("images/projectimage3.jpg").convert()
+            
+            platforms = []
+            ground = Object(game, 0,ground_level, width=game.screen_width, height=200,color = (0,100,0))
+            walls = [Wall(game,-50,0, width=50, height = screen.get_height()), 
+                     Wall(game, screen.get_width(),0, width=50, height=screen.get_height())]
+
+    background = pygame.transform.scale(background, (screen.get_width(),screen.get_height()))
+
+
+    match game.player_character:
+        case "Iron Stan":
+            animationfile = "animations/ironman.json"
+        case "K. Onami":
+            animationfile = "animations/ninja.json"
+
+    player = Player(game,150,550,width=50,height=50, animationfile = animationfile, scale = 1)
     misc = [DeathArea(game, top = -500, bottom=1500, left=-500, right=1800)]
     objects = [player, ground]
     
@@ -29,7 +67,7 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
     game.add(walls)
     game.add(platforms)
     
-    enemy = Enemy(game, 600, 650, health=30, animationfile="animations/test.json", scale=2)
+    enemy = Enemy(game, 600, 650, health=100, animationfile="animations/test.json", scale=2)
     game.add(enemy)
 
     UI = [healthbar(player, game), healthbar(enemy, game), Tracker(game, player, color="blue"), Tracker(game, enemy, color="red")]#PauseButton(game,screen.get_width()/2,100,"pause de game", border_color=(0,0,0))
@@ -59,30 +97,33 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
                 case pygame.QUIT:
                     game.running = False
                 case pygame.KEYDOWN:
-                    if event.key == pygame.K_F5:        #zwaartekracht toggelen
-                        if grav:
-                            game.gravity = 0.1
+                    if game.debugging:
+                        if event.key == pygame.K_F5:        #zwaartekracht toggelen
+                            if grav:
+                                game.gravity = 0.1
+                                for obj in objects:
+                                    if not obj.static and obj.affected_by_gravity:
+                                        obj.acc.y = 0
+                                        obj.vel.y = 0
+                                grav = False
+                            else:
+                                game.gravity = 1
+                                grav = True
+                        if event.key == pygame.K_F6:
                             for obj in objects:
-                                if not obj.static and obj.affected_by_gravity:
-                                    obj.acc.y = 0
-                                    obj.vel.y = 0
-                            grav = False
-                        else:
-                            game.gravity = 1
-                            grav = True
-                    if event.key == pygame.K_F6:
-                        for obj in objects:
-                            if not obj.static:
-                                obj.pos.y = 50
-                    if event.key == pygame.K_F7:
-                        game.scene_running = False
-                    if event.key == pygame.K_F8:
-                        spawn_random_powerup(game)
-                    if event.key == pygame.K_F9:
-                        enemy.getPath(enemy.target)
-                        enemy.current_action = "attack"
-                        enemy.last_action_time = time.time()
-                        enemy.current_action_length = 10
+                                if not obj.static:
+                                    obj.pos.y = 50
+                        if event.key == pygame.K_F7:
+                            game.scene_running = False
+                        if event.key == pygame.K_F8:
+                            spawn_random_powerup(game)
+                        if event.key == pygame.K_F9:
+                            enemy.getPath(enemy.target)
+                            enemy.current_action = "attack"
+                            enemy.last_action_time = time.time()
+                            enemy.current_action_length = 10
+
+                    
                     if event.key == pygame.K_ESCAPE:
                         game.pause()
                     key = pygame.key.name(event.key)
@@ -94,11 +135,11 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
 
                     patat = hashlib.md5(str(keys).encode())
                     if str(patat.hexdigest()) == "97bd60a0f2d7cd76cf49e96e69d8996d":
-                        color = (0,255,255)
-                        player.loadAnimations("animations\\luigi.json",scale=2)
-                    #print(f"str keys is: {str(keys)} and hash is: {patat.hexdigest()}")
-                case pygame.KEYUP:
-                    pass
+                        #hier had een betere cheat code moeten komen, ma geen tijd :'( (een hint voor de cheat code in kwestie staat wel ergens verstopt in de game...)
+                        print("Cheat code gevonden!!!")
+                        for i in range(100):
+                            spawn_random_powerup(game)
+                        pass
                     
                 case pygame.MOUSEBUTTONDOWN:
                     mouse = pygame.mouse.get_pos()
@@ -107,10 +148,12 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
         screen.fill(color=color)  # Indien achtergrond niet geladen is, vul het scherm met een default kleur
 
         # Achtergrond laden indien beschikbaar
-        if game.background:
-            screen.blit(game.background, (0, 0))  # Tekent de geselecteerde achtergrond op positie (0, 0)
+        if background:
+            screen.blit(background, (0, 0))  # Tekent de geselecteerde achtergrond op positie (0, 0)
 
-
+        if time.time()-last_powerup_time > 15:
+            spawn_random_powerup(game)
+            last_powerup_time = time.time()
         #updaten van de 3 verschillende layers
         for i in misc:      
             i.update()
@@ -126,19 +169,22 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
 
         pygame.display.flip()
 
+
 def start_menu(game):
     screen = game.screen
     color = (0,0,0)
     font = pygame.font.SysFont("monospace", 50)
     label = font.render("Untitled Fight Game", 1, (255,255,255))
 
+    bg = pygame.image.load("images/AI_startscreen.png")
+    bg = pygame.transform.scale(bg, (screen.get_width(),screen.get_height()))
     width = 300
-    UI = [SceneButton(game,screen.get_width()/2 - width/2,500,"Play","menu",width=width,height=50), SceneButton(game,screen.get_width()/2 - width/2,600,"Quit","quit",width=width,height=50)]
+    UI = [SceneButton(game,screen.get_width()/2 - width/2,500,"Play","menu",width=width,height=50, color=(150,150,150), border_color=(50,50,50)), SceneButton(game,screen.get_width()/2 - width/2,600,"Quit","quit",width=width,height=50, color=(150,150,150), border_color=(50,50,50))]
 
     game.add_UI(UI)
     while game.running and game.scene_running:
         clock.tick(game.fps)
-        screen.fill(color)
+        screen.blit(bg, (0,0))
         
         for event in pygame.event.get():
             match event.type: 
