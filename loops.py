@@ -1,9 +1,9 @@
 import pygame, time, hashlib, random
 from entities import *
 from objects import *
-from healthbar import healthbar
-from buttons import *
-from tracker import Tracker
+from UI.healthbar import healthbar
+from UI.buttons import *
+from UI.tracker import Tracker
 #from AI import thing, connect
 from deatharea import DeathArea 
 from powerrup import spawn_random_powerup
@@ -13,39 +13,42 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
     screen = game.screen
 
     keys = []
-    color = (100,255,255)
+    color = (100,255,255)  # Kleur achtergrond voor als de achtergrond niet geladen is
     ground_level = game.screen_height*0.8
 
-    player = Player(game,150,550,width=50,height=50, animationfile = "animations/ninja.json", scale = 0.5)
+    player = Player(game,150,550,width=50,height=50, animationfile = "animations/ninja2.json", scale = 1)
     ground = Object(game, 0,ground_level, width=game.screen_width, height=200,color = (0,100,0))
     walls = [Wall(game,-50,0, width=50, height = screen.get_height()), Wall(game, screen.get_width(),0, width=50, height=screen.get_height())]
-    platforms = [Object(game, 150, ground_level-100, width=200, height=30), Object(game, 650, ground_level-100, width=200, height=30), Object(game, 400, ground_level-200, width=200, height=30), Object(game, 800, ground_level-250, width=200, height=30), Object(game, 900, ground_level-100, width=40, height=100), Object(game, 940, ground_level-100, width=80, height=10)]
-    #Object(game, 120,game.screen_height*0.8-30, width=50, height=30), Object(game, 120,game.screen_height*0.8-30, width=50, height=30),Object(game, 400,game.screen_height*0.8-80, width=200, height=30), Object(game, 700,game.screen_height*0.8-80, width=200, height=30),Object(game, 520,525, width=100, height=100), Object(game, 900, 650, 100,40)
+    platforms = [Object(game, 150, ground_level-100, width=200, height=30), Object(game, 650, ground_level-100, width=200, height=30), 
+                 Object(game, 400, ground_level-200, width=200, height=30), Object(game, 800, ground_level-250, width=200, height=30),
+                 Object(game, 900, ground_level-100, width=40, height=100), Object(game, 940, ground_level-100, width=80, height=10)]
     misc = [DeathArea(game, top = -500, bottom=1500, left=-500, right=1800)]
     objects = [player, ground]
-    UI = [healthbar(player, game, width=30), Tracker(game, player, color="blue")]#PauseButton(game,screen.get_width()/2,100,"pause de game", border_color=(0,0,0))
     
-
     game.add(objects)
     game.add(walls)
     game.add(platforms)
-    game.add_UI(UI)
+    
 
-    enemy = Enemy(game, 600, 650)
+    enemy = Enemy(game, 600, 650, health=300)
     game.add(enemy)
+
+    UI = [healthbar(player, game), healthbar(enemy, game), Tracker(game, player, color="blue"), Tracker(game, enemy, color="red")]#PauseButton(game,screen.get_width()/2,100,"pause de game", border_color=(0,0,0))
+    game.add_UI(UI)
 
     grav = True
     font = pygame.font.SysFont("monospace", 15)
 
     last_time = time.time()
     last_powerup_time = time.time()
+
     while game.scene_running and game.running:
         clock.tick(game.fps)
 
         # delta time
         dt = time.time() - last_time
         last_time = time.time()
-        if dt==0: fps = 0
+        if dt == 0: fps = 0
         else: fps = 1/dt
         #game.dt = dt
         
@@ -76,6 +79,8 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
                         game.scene_running = False
                     if event.key == pygame.K_F8:
                         spawn_random_powerup(game)
+                    if event.key == pygame.K_F9:
+                        enemy.getPath(enemy.target)
                     if event.key == pygame.K_ESCAPE:
                         game.pause()
                     key = pygame.key.name(event.key)
@@ -96,18 +101,18 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
                 case pygame.MOUSEBUTTONDOWN:
                     mouse = pygame.mouse.get_pos()
 
-        screen.fill(color=color) #blit(self.background)
+        # Achtergrond weergeven (blit de achtergrond op de screen)
+        screen.fill(color=color)  # Indien achtergrond niet geladen is, vul het scherm met een default kleur
 
-        """if time.time() - last_powerup_time > 20:
-            chance  = random.randint(0,100)
-            if chance <= 30:
-                spawn_random_powerup(game)"""
+        # Achtergrond laden indien beschikbaar
+        if game.background:
+            screen.blit(game.background, (0, 0))  # Tekent de geselecteerde achtergrond op positie (0, 0)
 
-        #updaten van de 3 veschillende layers
+
+        #updaten van de 3 verschillende layers
         for i in misc:      
             i.update()
         for obj in game.objects:
-            #otherobjects = [i for i in objects if i != obj]
             obj.update()       #updaten van het object zelf en een lijst van alle andere objecten doorgeven
         for i in game.UI:
             i.update()
@@ -131,7 +136,6 @@ def start_menu(game):
         clock.tick(game.fps)
         screen.fill(color)
         
-
         for event in pygame.event.get():
             match event.type: 
                 case pygame.QUIT:
@@ -139,7 +143,6 @@ def start_menu(game):
         
         for ui in UI:
             ui.update()
-        
         
         pygame.display.flip()
 
