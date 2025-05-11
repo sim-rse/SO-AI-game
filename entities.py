@@ -30,12 +30,14 @@ class Entity(MovingObject):
             self.health -= damage
         self.playanimation("get_damaged")
 
-    def punch(self, otherEntity = None):
+    def punch(self):
         self.playanimation("punch")
-        if otherEntity:
-            otherEntity.getDamage(self.strength)
+        for otherEntity in self.game.entities:
+            if otherEntity is not self and self.collideswith(otherEntity, range_= 10):
+                otherEntity.getDamage(self.strength)
         
     def shoot(self,target):
+        self.playanimation("shoot")
         self.game.add(Projectile(self.game, self.center.x, self.center.y - self.height, target = target, owner=self, exploding=True))
 
     def update(self):
@@ -133,6 +135,8 @@ class Player(Entity):
         self.sneaking = False
         self.health = 50
 
+        self.last_punch_time = 0
+
     def getKeyPress(self):
         keys = pygame.key.get_pressed()
         #beweging van de speler
@@ -149,10 +153,14 @@ class Player(Entity):
             self.jump()                 #te vinden bij Entity class
         if keys[pygame.K_DOWN]:
             self.sneaking = True
+            self.blocking = True
         else:
             self.sneaking = False
+            self.blocking = False
         if keys[pygame.K_SPACE]:
-            self.punch()
+            if time.time() - self.last_punch_time>0.5: 
+                self.punch()
+                self.last_punch_time = time.time()
         self.smoothSpeedChange(accel[0])        #indien we deze methode gebruiken blijft de speler staan indien we zowel links en rechts indrukken, en als je een toets loslaat heb je ook geen problemen met de richting die niet juist kan zijn
         
         
@@ -198,7 +206,6 @@ class Player(Entity):
 
     def die(self):
         super().die()
-        print('Oh noo (sad mario music)')
         self.game.scene = "game_over"
         self.game.scene_running = False
         
@@ -221,6 +228,16 @@ class Enemy(Entity):
     def die(self):
         self.game.scene = "game_over"
         self.game.scene_running = False
+
+    def animationHandler(self):
+        if self.vel.y<0:
+            self.playanimation("jump")
+        elif self.onGround and self.vel.x !=0:
+            self.playanimation("walk")
+        elif self.vel.y>0:
+            self.playanimation("fall")
+        else:
+            self.playanimation("default")
 
     def movement(self):
         path = self.path

@@ -21,7 +21,7 @@ class healthbar():
 
         # Als width niet is gegeven, gebruiken we de breedte van het object zelf
         if width is None:
-            width = behouder.width
+            width = behouder.width*1.3
 
         self.width = width  # Breedte van de healthbar
         self.height = height  # Hoogte van de healthbar
@@ -39,7 +39,7 @@ class healthbar():
         self.gauge_width = self.width * health_ratio
 
         # Zorg ervoor dat de healthbar blijft volgen met het object
-        self.pos = pygame.math.Vector2(self.behouder.pos.x,self.behouder.pos.y - self.offset_y)
+        self.pos = pygame.math.Vector2(self.behouder.center.x - self.width/2 ,self.behouder.pos.y - self.offset_y)
         self.draw()
 
     def draw(self):

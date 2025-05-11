@@ -1,9 +1,9 @@
 import pygame, time, hashlib, random
 from entities import *
 from objects import *
-from healthbar import healthbar
-from buttons import *
-from tracker import Tracker
+from UI.healthbar import healthbar
+from UI.buttons import *
+from UI.tracker import Tracker
 #from AI import thing, connect
 from deatharea import DeathArea 
 from powerrup import spawn_random_powerup
@@ -16,7 +16,7 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
     color = (100,255,255)  # Kleur achtergrond voor als de achtergrond niet geladen is
     ground_level = game.screen_height*0.8
 
-    player = Player(game,150,550,width=50,height=50, animationfile = "animations/ninja.json", scale = 0.5)
+    player = Player(game,150,550,width=50,height=50, animationfile = "animations/ninja2.json", scale = 1)
     ground = Object(game, 0,ground_level, width=game.screen_width, height=200,color = (0,100,0))
     walls = [Wall(game,-50,0, width=50, height = screen.get_height()), Wall(game, screen.get_width(),0, width=50, height=screen.get_height())]
     platforms = [Object(game, 150, ground_level-100, width=200, height=30), Object(game, 650, ground_level-100, width=200, height=30), 
@@ -24,15 +24,17 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
                  Object(game, 900, ground_level-100, width=40, height=100), Object(game, 940, ground_level-100, width=80, height=10)]
     misc = [DeathArea(game, top = -500, bottom=1500, left=-500, right=1800)]
     objects = [player, ground]
-    UI = [healthbar(player, game, width=30), Tracker(game, player, color="blue")]#PauseButton(game,screen.get_width()/2,100,"pause de game", border_color=(0,0,0))
     
     game.add(objects)
     game.add(walls)
     game.add(platforms)
-    game.add_UI(UI)
+    
 
-    enemy = Enemy(game, 600, 650)
+    enemy = Enemy(game, 600, 650, health=300)
     game.add(enemy)
+
+    UI = [healthbar(player, game), healthbar(enemy, game), Tracker(game, player, color="blue"), Tracker(game, enemy, color="red")]#PauseButton(game,screen.get_width()/2,100,"pause de game", border_color=(0,0,0))
+    game.add_UI(UI)
 
     grav = True
     font = pygame.font.SysFont("monospace", 15)
@@ -77,6 +79,8 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
                         game.scene_running = False
                     if event.key == pygame.K_F8:
                         spawn_random_powerup(game)
+                    if event.key == pygame.K_F9:
+                        enemy.getPath(enemy.target)
                     if event.key == pygame.K_ESCAPE:
                         game.pause()
                     key = pygame.key.name(event.key)
@@ -103,6 +107,7 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
         # Achtergrond laden indien beschikbaar
         if game.background:
             screen.blit(game.background, (0, 0))  # Tekent de geselecteerde achtergrond op positie (0, 0)
+
 
         #updaten van de 3 verschillende layers
         for i in misc:      

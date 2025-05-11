@@ -157,8 +157,8 @@ class AI:
                 if newPoint != point: 
                     if point.pos.y == newPoint.pos.y and point.pos.x<newPoint.pos.x:        #als er een punt op dezelfde hoogte en rechts van de oorspronkelijke punt gevonden wodt
                         if point.pos.distance_to(newPoint.pos) < current [0] or current[0]==-1: #we zoeken de rechtse punt die het dichtsbij is
-                            if newPoint.pointType != "dropdown_L" and not raycast(game, pygame.math.Vector2(point.pos.x, point.pos.y-10), pygame.math.Vector2(newPoint.pos.x, newPoint.pos.y-10)):       #als de rechtse punt een dropdown_L is betekent het dat er een gap is tussen de twee punten (de bot kan dus niet gwn rechtdoor lopen), en als raycast iets terugzendt is er een muur en moet het dus ook springen
-
+                            if point.pointType != "dropdown_R" and newPoint.pointType != "dropdown_L" and not raycast(game, pygame.math.Vector2(point.pos.x, point.pos.y-10), pygame.math.Vector2(newPoint.pos.x, newPoint.pos.y-10)):       #als de rechtse punt een dropdown_L is betekent het dat er een gap is tussen de twee punten (de bot kan dus niet gwn rechtdoor lopen), en als raycast iets terugzendt is er een muur en moet het dus ook springen
+                                print(newPoint.pointType)
                                 current = (point.pos.distance_to(newPoint.pos), newPoint)
                                 #print(f"Newvector at same height: {}")
 
@@ -167,22 +167,23 @@ class AI:
             
             if current[1]:      #als current[1] None is zijn er dus geen punten die 'rechtser' zijn, en er is geen link te maken met de ether
                 point.link(current[1])
-            
-            current2 = (-1, None)
+                pass
+
+            current = (-1, None)
             for newPoint in waypoints:   
                 if newPoint != point: 
 
                     if point.pointType == "dropdown_R" and (newPoint.pos.y <= point.pos.y and point.pos.y - entity.jumpheight <= newPoint.pos.y) and (newPoint.pos.x >= point.pos.x and point.pos.x + (entity.jumpwidth + 10) >= newPoint.pos.x):     #de +10 is een soort van marge aangezien de entities niet direct hun maximumsnelheid bereiken
-                        current2 = (point.pos.distance_to(newPoint.pos), newPoint)
+                        current = (point.pos.distance_to(newPoint.pos), newPoint)
 
                     if point.pointType == "dropdown_L" and (newPoint.pos.y <= point.pos.y and point.pos.y - entity.jumpheight <= newPoint.pos.y) and (newPoint.pos.x <= point.pos.x and point.pos.x - (entity.jumpwidth + 10) <= newPoint.pos.x):     #de +10 is een soort van marge aangezien de entities niet direct hun maximumsnelheid bereiken
-                        current2 = (point.pos.distance_to(newPoint.pos), newPoint)
+                        current = (point.pos.distance_to(newPoint.pos), newPoint)
 
-            if current[1]:      #als current[1] None is zijn er dus geen punten die 'rechtser' zijn, en er is geen link te maken met de ether
-                point.link(current[1])
-            if current2[1]:
-                point.link(current2[1])
+            if current[1]:
+                #point.link(current[1])
+                pass
 
+        print("sum is: ", sum([len(point.links) for point in waypoints]))
     def find_path(self, start:pygame.math.Vector2, end: pygame.math.Vector2, waypoints = None):
         if not waypoints:
             waypoints = self.waypoints

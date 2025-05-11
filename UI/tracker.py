@@ -16,7 +16,7 @@ class Tracker(Object):
             
         if entity.target:
             x = entity.target.center.x
-            y = entity.target.pos.y + 10
+            y = entity.target.pos.y - 10
         else:
             x = entity.pos.x
             y = entity.pos.y
@@ -28,7 +28,7 @@ class Tracker(Object):
 
     def update(self):
         if self.entity.target:
-            self.center = pygame.math.Vector2(self.entity.target.center.x, self.entity.target.hitbox["top"] + 10)
+            self.center = pygame.math.Vector2(self.entity.target.center.x, self.entity.target.hitbox["top"] - 10)
             self.playanimation("show")
         else:
             self.playanimation("empty") #als er geen target is wordt de tracker onzichtbaar
