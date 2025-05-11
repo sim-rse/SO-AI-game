@@ -42,7 +42,7 @@ class Waypoint():
                 waypoint.links.append(link(self, distance))
 
     def __str__(self):
-        return f"[red]Waypoint object op positie {self.pos}[/red]"#en poittype {self.pointType}
+        return f"[red]Waypoint object op positie {self.pos}, memory id = [/red]{hex(id(self))}"#en poittype {self.pointType}
     
 
     @property
@@ -158,7 +158,6 @@ class AI:
                     if point.pos.y == newPoint.pos.y and point.pos.x<newPoint.pos.x:        #als er een punt op dezelfde hoogte en rechts van de oorspronkelijke punt gevonden wodt
                         if point.pos.distance_to(newPoint.pos) < current [0] or current[0]==-1: #we zoeken de rechtse punt die het dichtsbij is
                             if point.pointType != "dropdown_R" and newPoint.pointType != "dropdown_L" and not raycast(game, pygame.math.Vector2(point.pos.x, point.pos.y-10), pygame.math.Vector2(newPoint.pos.x, newPoint.pos.y-10)):       #als de rechtse punt een dropdown_L is betekent het dat er een gap is tussen de twee punten (de bot kan dus niet gwn rechtdoor lopen), en als raycast iets terugzendt is er een muur en moet het dus ook springen
-                                print(newPoint.pointType)
                                 current = (point.pos.distance_to(newPoint.pos), newPoint)
                                 #print(f"Newvector at same height: {}")
 
@@ -180,10 +179,10 @@ class AI:
                         current = (point.pos.distance_to(newPoint.pos), newPoint)
 
             if current[1]:
-                #point.link(current[1])
+                point.link(current[1])
                 pass
 
-        print("sum is: ", sum([len(point.links) for point in waypoints]))
+        #print("sum is: ", sum([len(point.links) for point in waypoints]))
     def find_path(self, start:pygame.math.Vector2, end: pygame.math.Vector2, waypoints = None):
         if not waypoints:
             waypoints = self.waypoints
@@ -199,12 +198,35 @@ class AI:
             if end_point is None or manhattan(point.pos, end) < manhattan(end_point.pos, end):
                 #if not (raycast(self.game, Vector2(point.pos.x, start.y), point.pos) or raycast(self.game, start, Vector2(point.pos.x, start.y))):
                     end_point = point
-
-            #print(f"startpoint: {start_point.pos}, start: {start}\n end point: {end_point.pos}, end: {end}")
         
-        nodes, path= A_star(start_point, end_point)
-        if nodes:
-            return get_path(nodes)
+        nodes = get_path(A_star(start_point, end_point))
+        path = []
+
+        #print("len nodes is: ", len(nodes))
+        #print(f"nodes : {nodes}")
+
+        #hier gaan we de eerste en laatste punt werwijderen als deze verder liggen dan de eind positie of wanneer de startpositie tussen de twee eerste punten ligt, zodat de bot niet onnodig heen en weer gaaat bewegen
+        for pos, point in enumerate(nodes):
+            if pos == 0 and len(nodes)>1:
+                nextPoint = nodes[1]
+                #print(f"distance tussen current en next point: {point.pos.distance_to(nextPoint.pos)}, deze moet kleiner zijn dan distance tussen start en de next point: {start.distance_to(nextPoint.pos)}")
+                if abs(start.x - nextPoint.pos.x) > abs(point.pos.x - nextPoint.pos.x):
+                    path.append(point)
+                    #print(f"ze is keliner: {start.distance_to(nextPoint.pos)} > {point.pos.distance_to(nextPoint.pos)} ")
+                else:
+                    #print(f'het is dus niet kleiner en {point} zou niet in de path moeten zijn')
+                    pass
+            elif pos == len(nodes) and len(nodes)>1:
+                prevPoint = nodes[-2]
+                if prevPoint.pos.distance_to(end) < point.pos.distance_to(end):
+                    path.append(point)
+            else:
+                path.append(point)
+
+        #print(path)
+        if len(nodes)>0:
+            path.insert(0,Waypoint(self.game, end.x, end.y, ptype="end"))
+            return path
         else:
             return []
     
@@ -244,7 +266,7 @@ def A_star(start_point:Waypoint, end_point:Waypoint):
                     #print("newpoint, endpoint ", new_point, end_point)
                     if new_point == end_point :
                         #print("Oplossing gevonden!!!")
-                        return new_state, traveled
+                        return new_state        #, traveled
                     else:
                         priority = new_point.pos.distance_to(end_point.pos) + new_state['afgelegd']
                         random_value = random.randint(1,100000)
@@ -254,10 +276,12 @@ def A_star(start_point:Waypoint, end_point:Waypoint):
                 #print(f">> [{numb}/{len(directions)}] Het nieuwe punt: {new_point}, link van waypoint {state['point']} is al in traveled: {traveled}")
         #print(f">> done with waypoint: {state["point"]}")
     #print(f"Geen point gevonden!")
-    return None, traveled
+    return {}     #, traveled
 
 def get_path(my_node):
     my_list = []
+    if my_node == {}:
+        return my_list
     #print(my_node)
     while True:
         my_list.append(my_node['point'])

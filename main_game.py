@@ -4,7 +4,7 @@ from loops import *
 from objects import *
 from entities import *
 from start_menu import selection_menu
-from powerrup import PowerUp
+from powerup import PowerUp
 from game_end import game_over
 
 pygame.init()
@@ -33,8 +33,11 @@ class Game():
         ]
 
         for num, img in enumerate(self.backgrounds):
-            self.backgrounds[num] = pygame.transform.scale(img, (screen.get_width(), screen.get_height()))
+            self.backgrounds[num] = pygame.transform.scale(img, (screen.get_width(), screen.get_height()))      #herschalen van de backgrounds
+
         self.background_index = 0
+
+        self.winner = "Nobody"
     
     @property
     def background(self):
@@ -58,7 +61,6 @@ class Game():
                 if i in self.objects:       #er was ander soms een error bij projectiles waarbij het zich twee keer probeerde te removen (dit was een tijdelijke fix, maar als u dit ziet ben ik het vergeten deftig op te lossen)
                     self.objects.remove(i)
         else:
-            #print(f"removing {obj}")
             if obj in self.objects:
                 self.objects.remove(obj)
 
@@ -82,7 +84,7 @@ class Game():
             self.UI.remove(obj)
     
     def pause(self):       #deze scene werkt lichtjes anders: het moet ergens binnen de loop van de andere scenes geroepen worden zodat we dan terug naar de andere 
-                                #kheb het ook hiet gezet ipv in loops.py door circulaire imports
+                           #kheb het ook hiet gezet ipv in loops.py door circulaire imports
         screen: pygame.display = self.screen
         current_scene = self.scene
         keys = []
@@ -120,6 +122,10 @@ class Game():
     @property
     def entities(self):
         return [ent for ent in self.objects if isinstance(ent, Entity)]
+    
+    @property
+    def enemies(self):
+        return [ent for ent in self.objects if isinstance(ent, Enemy)]
     
     @property
     def players(self):
@@ -166,6 +172,8 @@ while game.running:
             game_over(game)
         case "quit":
             quit(game)
+        case _:
+            raise NotImplementedError(f"De scene {game.scene} bestaat (nog) niet")
 
 
 pygame.quit()

@@ -4,7 +4,7 @@ from loops import *
 from objects import *
 from entities import *
 from start_menu import selection_menu
-from powerrup import PowerUp 
+from powerup import PowerUp 
 
 pygame.init()
 

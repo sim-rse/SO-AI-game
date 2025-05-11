@@ -1,9 +1,10 @@
 [
     {
-        "spritesheet": "images\\ironman_walk3.png",
+        "spritesheet": "images\\ironman\\ironman_walk.png",
         "colorkey": [255, 255, 255],
         "width": 127,
         "height": 266,
+        "scale":0.2,
         "animations": {
             "default": {
                 "loop": true,
@@ -12,19 +13,17 @@
                 "row": 0,
                 "direction": "x"
                 
-            }
-        }
-    },
-    {
-        "spritesheet": "images\\ironman_jump2.png",
-        "colorkey": [255, 255, 255],
-        "width": 127,
-        "height": 266,
-       "scale":0.2,
-        "animations": {
+            },
             "walk": {
                 "loop": true,
-                "frames": 2,
+                "frames": 1,
+                "column": 0,
+                "row": 0,
+                "direction": "x"
+            },
+            "jump": {
+                "loop": true,
+                "frames": 1,
                 "column": 0,
                 "row": 0,
                 "direction": "x"
@@ -32,16 +31,16 @@
         }
     },
     {
-        "spritesheet": "images\\ironman_defend2.png",
+        "spritesheet": "images\\ironman\\ironman_defend.png",
         "colorkey": [255, 255, 255],
         "width": 143,
         "height": 266,
         "scale":0.2,
         "animations": {
             "fall": {
-                "loop": false,
+                "loop": true,
                 "frames": 1,
-                "column": 3,
+                "column": 0,
                 "row": 0,
                 "direction": "x"
                 
@@ -49,16 +48,16 @@
         }
     },
     {
-        "spritesheet": "images\\ironman_repulsor2.png",
+        "spritesheet": "images\\ironman\\ironman_repulsor.png",
         "colorkey": [255, 255, 255],
         "width": 236,
         "height": 266,
         "scale":0.2,
         "animations": {
-          "jump": {
+          "shoot": {
                 "loop": true,
                 "frames": 1,
-                "column": 2,
+                "column": 0,
                 "row": 0,
                 "direction": "x"
                
@@ -66,41 +65,24 @@
         }
     },
     {
-        "spritesheet": "images\\ironman_system_reboot2.png",
+        "spritesheet": "images\\ironman\\ironman_system_reboot.png",
         "colorkey": [255, 255, 255],
         "width": 193,
         "height": 266,
         "scale":0.2,
         "animations": {
-            "repulsor": {
-                "loop": true,
-                "frames": 2,
-                "column": 0,
-                "row": 1,
-                "direction": "x"
-                
-            }
-        }
-    },
-    {
-        "spritesheet": "images\\ironman_supersonic_charge2.png",
-        "colorkey": [255, 255, 255],
-        "width": 122,
-        "height": 266,
-        "scale":0.2,
-        "animations": {
-            "defend": {
+            "die": {
                 "loop": true,
                 "frames": 1,
                 "column": 0,
-                "row": 2,
+                "row": 0,
                 "direction": "x"
                 
             }
         }
     },
     {
-        "spritesheet": "images\\ironman_forearm_missile2.png",
+        "spritesheet": "images\\ironman\\ironman_forearm_missile.png",
         "colorkey": [255, 255, 255],
         "width": 234,
         "height": 266,
@@ -110,24 +92,24 @@
                  "loop": true,
                  "frames": 1,
                  "column": 0,
-                 "row": 4,
+                 "row": 0,
                  "direction": "x"
                 
             }
         }
     },
     {
-        "spritesheet": "images\\ironman_attack2.png",
+        "spritesheet": "images\\ironman\\ironman_punch.png",
         "colorkey": [255, 255, 255],
         "width": 248,
         "height": 266,
         "scale":0.2,
         "animations": {
-            "supersonic_charge": {
+            "punch": {
                 "loop": true,
                 "frames": 1,
                 "column": 0,
-                "row": 5,
+                "row": 0,
                 "direction": "x"
             }
         }

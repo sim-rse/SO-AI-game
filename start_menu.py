@@ -40,9 +40,9 @@ def selection_menu(game):
                 case pygame.QUIT:  # Sluitknop van venster
                     game.running = False  # Stop de hele game
                 case pygame.KEYDOWN:  # Een toets is ingedrukt
-                    if event.key == pygame.K_DOWN:  # Pijltje omlaag
+                    if event.key == pygame.K_UP:  # Pijltje omlaag
                         menu_index = (menu_index - 1) % 3  # Ga naar vorige optie
-                    elif event.key == pygame.K_UP:  # Pijltje omhoog
+                    elif event.key == pygame.K_DOWN:  # Pijltje omhoog
                         menu_index = (menu_index + 1) % 3  # Ga naar volgende optie
                     elif event.key == pygame.K_LEFT:  # Pijltje links
                         if menu_index == 0:  # Personage wijzigen

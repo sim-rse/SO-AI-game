@@ -19,16 +19,8 @@ def game_over(game):
     smallfont = pygame.font.SysFont("monospace", 30)
 
     players = game.players
-    # Controleer wie de winnaar is of dat het een gelijkspel is
-    if len(players) < 2:
-        winner = "Unknown"
-    else:
-        if players[0].health <= 0:
-            winner = "Player 2 Wins!"
-        elif players[1].health <= 0:
-            winner = "Player 1 Wins!"
-        else:   
-            winner = "Draw"
+    
+    winner = f"{game.winner} wins!"
 
     title = font.render("Game Over", True, (255, 0, 0))  # Rode "Game Over"
     winner_text = smallfont.render(winner, True, (255, 255, 255))  # Witte winnaarstekst
@@ -50,6 +42,6 @@ def game_over(game):
                 case pygame.KEYDOWN:
                     match event.key:
                         case pygame.K_RETURN:  # Druk op Enter om terug naar menu te gaan
-                            game.scene = "start_menu"
+                            game.scene = "default"
                             game.scene_running = False
         clock.tick(game.fps)
