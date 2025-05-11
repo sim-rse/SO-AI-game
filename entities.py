@@ -64,18 +64,21 @@ class Entity(MovingObject):
 
 class Projectile(Entity):
     def __init__(self, game, x, y, width=0, height=0, image="placeholder.png", animationfile=None, scale=1, health=20, target=None, owner=None, exploding=False):
-        super().__init__(game, x, y, width, height, image, animationfile, scale, health)
+        # Laad de afbeelding als het een pad is
+        if isinstance(image, str):
+            loaded_image = pygame.image.load(image).convert_alpha()
+        else:
+            loaded_image = image  # als het al een pygame.Surface is
+
+        super().__init__(game, x, y, width, height, loaded_image, animationfile, scale, health)
 
         self.explosionrange = 5
         self.flyspeed = 2
         self.exploding = exploding
-
         self.owner = owner
-        if target:
-            self.target = target
-        else:
-            self.target = pygame.math.Vector2(0, 0)
-        self.direction = (self.target - self.pos).normalize()  # Direction to target
+
+        self.target = target or pygame.math.Vector2(0, 0)
+        self.direction = (self.target - self.pos).normalize()
 
         self.affected_by_gravity = 0
         self.collider = False
@@ -83,6 +86,8 @@ class Projectile(Entity):
 
         self.vel.x = self.direction.x * self.flyspeed
         self.vel.y = self.direction.y * self.flyspeed
+        
+
 
     def die(self):
         super().die()
@@ -214,15 +219,16 @@ class Player(Entity):
 class Enemy(Entity):
     def __init__(self, game, x, y, width=0, height=0, image="placeholder.png", animationfile=None, scale=1, health=20):
         super().__init__(game, x, y, width, height, image, animationfile, scale, health)
-
         self.target = game.players[0]
         self.walkSpeed = 5
         self.ai = AI(game, self)
-
-        self.path:list = self.ai.find_path(self.pos, self.target.pos)
-        #self.path.append(Waypoint(game, self.target.pos.x, self.target.pos.y))
+        self.path: list = self.ai.find_path(self.pos, self.target.pos)
         self.current_waypoint = self.path.pop()
-        
+
+        # Add the current_action attribute
+        self.current_action = "idle"  # Default action
+        self.action_cooldown = 0  # Cooldown for actions
+
     def die(self):
         self.game.scene = "game_over"
         self.game.scene_running = False
@@ -260,7 +266,8 @@ class Enemy(Entity):
                 point.update()
             self.ai.show_path()
         self.movement()
-        """self.direction = self.target.pos-self.pos
-        if not self.direction == [0,0]:
-            self.direction.normalize_ip()
-        self.vel.x = self.walkSpeed*self.direction.x"""
+        
+        if self.action_cooldown > 0:
+            self.action_cooldown -= 1
+        else:
+            self.current_action = "idle"  # Reset to idle when cooldown ends
