@@ -6,7 +6,7 @@ from UI.buttons import *
 from UI.tracker import Tracker
 #from AI import thing, connect
 from deatharea import DeathArea 
-from powerrup import spawn_random_powerup
+from powerup import spawn_random_powerup
 clock = pygame.time.Clock()
 
 def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (een voor de menu een voor de startscreen en dan een voor het spel)
@@ -16,7 +16,7 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
     color = (100,255,255)  # Kleur achtergrond voor als de achtergrond niet geladen is
     ground_level = game.screen_height*0.8
 
-    player = Player(game,150,550,width=50,height=50, animationfile = "animations/ninja2.json", scale = 1)
+    player = Player(game,150,550,width=50,height=50, animationfile = "animations/ironman.json", scale = 1)
     ground = Object(game, 0,ground_level, width=game.screen_width, height=200,color = (0,100,0))
     walls = [Wall(game,-50,0, width=50, height = screen.get_height()), Wall(game, screen.get_width(),0, width=50, height=screen.get_height())]
     platforms = [Object(game, 150, ground_level-100, width=200, height=30), Object(game, 650, ground_level-100, width=200, height=30), 
@@ -29,8 +29,7 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
     game.add(walls)
     game.add(platforms)
     
-
-    enemy = Enemy(game, 600, 650, health=300)
+    enemy = Enemy(game, 600, 650, health=30, animationfile="animations/test.json", scale=2)
     game.add(enemy)
 
     UI = [healthbar(player, game), healthbar(enemy, game), Tracker(game, player, color="blue"), Tracker(game, enemy, color="red")]#PauseButton(game,screen.get_width()/2,100,"pause de game", border_color=(0,0,0))
@@ -117,8 +116,10 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
         for i in game.UI:
             i.update()
             
-        label = font.render(f"Player position   x: {round(player.pos.x,2)} y: {round(player.pos.y,2)}", 1, (0,0,0))
+        label = font.render(f"Player position   x: {round(player.pos.x,2)} y: {round(player.pos.y,2)}", 1, (255,255,255))
         screen.blit(label, (20, 20))
+        label = font.render(f"Enemy actions     action: {enemy.current_action}, cooldown: {enemy.action_cooldown}", 1, (255,255,255))
+        screen.blit(label, (20,50))
 
         pygame.display.flip()
 
