@@ -80,6 +80,9 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
                         spawn_random_powerup(game)
                     if event.key == pygame.K_F9:
                         enemy.getPath(enemy.target)
+                        enemy.current_action = "attack"
+                        enemy.last_action_time = time.time()
+                        enemy.current_action_length = 10
                     if event.key == pygame.K_ESCAPE:
                         game.pause()
                     key = pygame.key.name(event.key)

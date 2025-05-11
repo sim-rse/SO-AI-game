@@ -200,33 +200,21 @@ class AI:
                     end_point = point
         
         nodes = get_path(A_star(start_point, end_point))
-        path = []
-
-        #print("len nodes is: ", len(nodes))
-        #print(f"nodes : {nodes}")
-
-        #hier gaan we de eerste en laatste punt werwijderen als deze verder liggen dan de eind positie of wanneer de startpositie tussen de twee eerste punten ligt, zodat de bot niet onnodig heen en weer gaaat bewegen
-        for pos, point in enumerate(nodes):
-            if pos == 0 and len(nodes)>1:
-                nextPoint = nodes[1]
-                #print(f"distance tussen current en next point: {point.pos.distance_to(nextPoint.pos)}, deze moet kleiner zijn dan distance tussen start en de next point: {start.distance_to(nextPoint.pos)}")
-                if abs(start.x - nextPoint.pos.x) > abs(point.pos.x - nextPoint.pos.x):
-                    path.append(point)
-                    #print(f"ze is keliner: {start.distance_to(nextPoint.pos)} > {point.pos.distance_to(nextPoint.pos)} ")
-                else:
-                    #print(f'het is dus niet kleiner en {point} zou niet in de path moeten zijn')
-                    pass
-            elif pos == len(nodes) and len(nodes)>1:
-                prevPoint = nodes[-2]
-                if prevPoint.pos.distance_to(end) < point.pos.distance_to(end):
-                    path.append(point)
-            else:
-                path.append(point)
+        if len(nodes) > 1:
+            # Skip first node if the entity is already closer to the second
+            dist_start_to_next = start.distance_to(nodes[1].pos)
+            dist_first_to_next = nodes[0].pos.distance_to(nodes[1].pos)
+            dist_last_to_end = nodes[-1].pos.distance_to(end)
+            dist_seclast_to_end = nodes[-2].pos.distance_to(end)
+            if dist_start_to_next < dist_first_to_next:
+                nodes = nodes[1:]
+            if dist_last_to_end > dist_seclast_to_end:
+                nodes = nodes[:-1]
 
         #print(path)
         if len(nodes)>0:
-            path.insert(0,Waypoint(self.game, end.x, end.y, ptype="end"))
-            return path
+            nodes.insert(0,Waypoint(self.game, end.x, end.y, ptype="end"))
+            return nodes
         else:
             return []
     
