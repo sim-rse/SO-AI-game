@@ -132,6 +132,10 @@ class Game():
         return [obj for obj in self.objects if isinstance(obj, Player)]
     
     @property
+    def fighters(self):
+        return [obj for obj in self.objects if isinstance(obj, Player) or isinstance(obj, Enemy)]
+    
+    @property
     def colliders(self):
         return [obj for obj in self.objects if obj.collider]
     

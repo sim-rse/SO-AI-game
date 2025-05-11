@@ -127,7 +127,7 @@ class Projectile(Entity):
 
     def update(self):
         self.updatePos()
-        for col in self.game.colliders:
+        for col in self.game.colliders + self.game.fighters:
             if col == self.owner:
                 pass
             else:
@@ -271,7 +271,7 @@ class Enemy(Entity):
     def die(self):
         self.game.scene = "game_over"
         self.game.scene_running = False
-        self.game.winner = f"Player {self.current_action}"
+        self.game.winner = f"Player"
 
     def animationHandler(self):
         if self.shooting:
@@ -292,9 +292,9 @@ class Enemy(Entity):
         
         pos = self.center_bottom
         waypoint = self.current_waypoint
-        #print(waypoint.pos.x, pos.x)
+
         if len(path) !=0:
-            if pos.distance_to(waypoint.pos) <= 20:
+            if pos.distance_to(waypoint.pos) <= 5 and self.onGround:
                 self.current_waypoint = path.pop()
             for num, i in enumerate(path):
                 if pos.distance_to(waypoint.pos) > pos.distance_to(i.pos):
