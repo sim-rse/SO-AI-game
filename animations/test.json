@@ -45,10 +45,10 @@
     {
         "spritesheet": "images\\Sneak.png",
         "width":16,
-        "height":16,
+        "height":20,
         "colorkey": [0,116,116],
         "animations":{
-            "sneak":{
+            "protect":{
                 "loop": true,
                 "frames": 1,
                 "column":0,

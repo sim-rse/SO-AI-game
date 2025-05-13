@@ -213,7 +213,7 @@ class AI:
 
         #print(path)
         if len(nodes)>0:
-            nodes.insert(0,Waypoint(self.game, end.x, end.y, ptype="end"))
+            nodes.insert(0,Waypoint(self.game, end.x, end.y, ptype="end"))      #end wordt als laatste punt toegevoegd
             return nodes
         else:
             return []

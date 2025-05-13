@@ -1,0 +1,9 @@
+Run main.py om te starten 
+
+mensen in het groepje: Simon Roose; Zahide Delibas; Chouaib Lotfy
+
+naast pygame werd rich gebruikt voor debugging (gekleurde tekst in shell)
+
+Link naar ChatGPT chats (Simon Roose): https://chatgpt.com/share/68211176-34e0-8013-9466-214521e9a19d , AI images: https://chatgpt.com/share/68211195-d580-8013-860d-ba40aa077961
+
+Onze GitHub: https://github.com/sim-rse/SO-AI-game

@@ -44,6 +44,14 @@
                 "row": 0,
                 "direction": "x"
                 
+            },
+            "protect": {
+                "loop": true,
+                "frames": 1,
+                "column": 0,
+                "row": 0,
+                "direction": "x"
+                
             }
         }
     },

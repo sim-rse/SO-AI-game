@@ -42,6 +42,6 @@ def game_over(game):
                 case pygame.KEYDOWN:
                     match event.key:
                         case pygame.K_RETURN:  # Druk op Enter om terug naar menu te gaan
-                            game.scene = "default"
+                            game.scene = "start_menu"
                             game.scene_running = False
         clock.tick(game.fps)
