@@ -59,8 +59,8 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
         case "K. Onami":
             animationfile = "animations/ninja.json"
 
-    player = Player(game,150,550,width=50,height=50, animationfile = animationfile, scale = 1)
-    misc = [DeathArea(game, top = -500, bottom=1500, left=-500, right=1800)]
+    player = Player(game,150,550,width=50,height=50, animationfile = animationfile, scale = 1, health=300)
+    misc = [DeathArea(game, top = -1000, bottom=1500, left=-500, right=1800)]
     objects = [player, ground]
     
     game.add(objects)
@@ -121,7 +121,7 @@ def gameLoop(game):       #we gaan verschillende loops op deze manier aanmaken (
                             enemy.getPath(enemy.target)
                             enemy.current_action = "attack"
                             enemy.last_action_time = time.time()
-                            enemy.current_action_length = 10
+                            enemy.current_action_length = 3
 
                     
                     if event.key == pygame.K_ESCAPE:

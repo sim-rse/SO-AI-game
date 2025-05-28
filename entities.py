@@ -1,425 +1,445 @@
-import pygame, time, random  # Importeer pygame voor gamefunctionaliteit, time voor tijdbeheer, en random voor willekeurige keuzes.
-from objects import MovingObject  # Importeer MovingObject als basis voor bewegende objecten.
-from queue import PriorityQueue  # Importeer PriorityQueue voor het beheren van doelen.
-from AI import AI, Waypoint  # Importeer AI en Waypoint voor kunstmatige intelligentie en padvinden.
-from powerup import PowerUp  # Importeer PowerUp voor power-ups in het spel.
+import pygame, time, random
+from objects import MovingObject
+from queue import PriorityQueue
+from AI import AI, Waypoint
+from powerup import PowerUp
 
-# Definieer de Entity-klasse, die een bewegend object in het spel vertegenwoordigt.
 class Entity(MovingObject):
-    def __init__(self, game, x, y, width=0, height=0, image="placeholder.png", animationfile=None, scale=1, health=20, center=None):
-        super().__init__(game, x, y, width, height, image, hasCollisionEnabled=True, affected_by_gravity=True, animationfile=animationfile, scale=scale, center=center)  # Roep de constructor van MovingObject aan.
+    def __init__(self, game, x, y, width = 0, height = 0, image = "placeholder.png", animationfile = None, scale = 1, health = 20, center = None):
+        super().__init__(game, x, y, width, height, image, hasCollisionEnabled=True, affected_by_gravity=True, animationfile = animationfile, scale = scale, center = center)
 
-        self.health = health  # Gezondheid van de entiteit.
-        self.strength = 2  # Hoeveel schade de entiteit kan toebrengen.
-        self.target = None  # Het doelwit van de entiteit.
-        self.list_of_targets = PriorityQueue()  # Een prioriteitenlijst voor doelen.
-        self.collider = False  # Geeft aan of de entiteit botsingen kan detecteren.
-        self.invincible = False  # Geeft aan of de entiteit onkwetsbaar is.
-        self.jump_force = 18  # De kracht waarmee de entiteit kan springen.
-        self.walkSpeed = 12  # De loopsnelheid van de entiteit.
-        self.punch_cooldown = 0.5  # De tijd tussen twee stoten.
-        self.shoot_cooldown = 1  # De tijd tussen twee schoten.
-        self.last_punch_time = 0  # Tijdstip van de laatste stoot.
-        self.last_shoot_time = 0  # Tijdstip van het laatste schot.
-        self.last_action_time = 0  # Tijdstip van de laatste actie.
-        self.current_action = None  # De huidige actie van de entiteit.
-        self.current_action_length = 0  # De duur van de huidige actie.
-        self.protecting = False  # Geeft aan of de entiteit zich beschermt.
-        self.birth_time = time.time()  # Tijdstip waarop de entiteit is gemaakt.
+        self.health = health
+        self.strength = 2
 
-    def die(self):  # Methode die wordt aangeroepen wanneer de entiteit sterft.
-        self.playanimation("die")  # Speel de sterfanimatie af.
+        self.target = None
+        self.list_of_targets = PriorityQueue()
 
-    def jump(self):  # Laat de entiteit springen.
-        if self.onGround:  # Controleer of de entiteit op de grond staat.
-            self.vel.y = -self.jump_force  # Stel de verticale snelheid in om te springen.
+        self.collider = False
+        self.invincible = False
+        self.jump_force = 18
+        self.walkSpeed = 12
 
-    def getDamage(self, damage):  # Verminder de gezondheid van de entiteit.
-        if not (self.invincible or self.protecting):  # Controleer of de entiteit niet onkwetsbaar is of zich beschermt.
-            self.health -= damage  # Verminder de gezondheid.
-        self.playanimation("get_damaged")  # Speel de animatie voor schade af.
+        self.punch_cooldown = 0.5
+        self.shoot_cooldown = 1 
 
-    def punch(self):  # Laat de entiteit een stoot uitvoeren.
-        self.playanimation("punch")  # Speel de stootanimatie af.
-        for otherEntity in self.game.entities:  # Controleer botsingen met andere entiteiten.
-            if otherEntity is not self and self.collideswith(otherEntity, range_=10):  # Controleer of de entiteit binnen bereik is.
-                otherEntity.getDamage(self.strength)  # Breng schade toe aan de andere entiteit.
+        self.last_punch_time = 0
+        self.last_shoot_time = 0
+        self.last_action_time = 0
 
-    def shoot(self, target):  # Laat de entiteit een projectiel afvuren.
-        self.game.add(Projectile(self.game, self.pos.x, self.pos.y, target=target, owner=self, exploding=True, scale=0.5))  # Voeg een projectiel toe aan het spel.
+        self.current_action = None
+        self.current_action_length = 0
 
-    def update(self):  # Methode die elke frame wordt aangeroepen.
-        super().update()  # Roep de update-methode van de ouderklasse aan.
-        if self.health <= 0:  # Controleer of de gezondheid 0 of lager is.
-            self.die()  # Laat de entiteit sterven.
-        if self.vel.x < 0:  # Controleer of de entiteit naar links beweegt.
-            self.flipSprite = True  # Spiegel de sprite zodat deze naar links kijkt.
-        elif self.vel.x > 0:  # Controleer of de entiteit naar rechts beweegt.
-            self.flipSprite = False  # Zorg ervoor dat de sprite niet gespiegeld is.
+        self.protecting = False
 
-    @property
-    def jumpheight(self):  # Bereken de maximale spronghoogte.
-        return self.jump_force**2 / (2 * self.game.gravity)  # Gebruik de wet van behoud van energie.
+        self.birth_time = time.time()
+    
+    def die(self):
+        self.playanimation("die")
+    
+    def jump(self):
+        if self.onGround:
+            self.vel.y = -self.jump_force       #https://www.youtube.com/watch?v=bn3ZUCZ0vMo
 
-    @property
-    def jumpwidth(self):  # Bereken de maximale sprongafstand.
-        return self.walkSpeed * (2 * self.jump_force / self.game.gravity)  # Gebruik de sprongkracht en zwaartekracht.
+    def getDamage(self, damage):
+        if not (self.invincible or self.protecting):
+            self.health -= damage
+        self.playanimation("get_damaged")
 
-    @property
-    def ready_to_punch(self):  # Controleer of de entiteit klaar is om te stoten.
-        return time.time() - self.last_punch_time > self.punch_cooldown  # Controleer of de cooldown is verstreken.
+    def punch(self):
+        self.playanimation("punch")
+        for otherEntity in self.game.entities:
+            if otherEntity is not self and self.collideswith(otherEntity, range_= 10):
+                otherEntity.getDamage(self.strength)
+        
+    def shoot(self,target):
+        self.game.add(Projectile(self.game, self.pos.x, self.pos.y, target = target, owner=self, exploding=True, scale=0.4))
+
+    def update(self):
+        super().update()        #doet wat de update van de parent doet plus wat hieronder staat
+        if self.health <= 0: 
+            self.die()
+        if self.vel.x < 0:
+            self.flipSprite = True          #bij het op de scherm zetten van de sprites worden ze gespiegeld zodat ze naar links kijken (dit blijft zo totdat er weer op rechts wordt gedrukt)
+        elif self.vel.x > 0:
+            self.flipSprite = False
 
     @property
-    def ready_to_shoot(self):  # Controleer of de entiteit klaar is om te schieten.
-        return time.time() - self.last_shoot_time > self.shoot_cooldown  # Controleer of de cooldown is verstreken.
+    def jumpheight(self):
+        return self.jump_force**2/(2*self.game.gravity)     #de maximumhoogte dat bereikt wordt (zie wet behoud van energie)
+    @property
+    def jumpwidth(self):
+        return self.walkSpeed * (2*self.jump_force/self.game.gravity)       #de grootstse afstand dat het in een sprong kan afleggen
+    
+    @property
+    def ready_to_punch(self):
+        return time.time() - self.last_punch_time > self.punch_cooldown
 
     @property
-    def action_cooldown(self):  # Bereken de resterende cooldown voor acties.
-        diff = time.time() - self.last_action_time  # Bereken het tijdsverschil sinds de laatste actie.
-        if self.current_action_length - diff > 0:  # Controleer of de actie nog bezig is.
-            return self.current_action_length - diff  # Geef de resterende tijd terug.
+    def ready_to_shoot(self):
+        return time.time() - self.last_shoot_time > self.shoot_cooldown
+    
+    @property
+    def action_cooldown(self):
+        diff = time.time() - self.last_action_time
+        if self.current_action_length - diff > 0:
+            return self.current_action_length - diff
+        else: 
+            return 0
+    
+    @property
+    def punching(self):                                 #dit is voor de animaties, de cooldowns voor de volgende punch of shoot zijn de ready_to_[...]
+        if time.time() - self.last_punch_time < 0.3:
+            return True
+        return False
+        
+    @property
+    def shooting(self):
+        if time.time() - self.last_shoot_time < 0.4:
+            return True
+        return False
+
+class Projectile(Entity):
+    def __init__(self, game, x, y, width=0, height=0, image="images/bomb.png", animationfile=None, scale=1, health=20, target = None, owner = None, exploding = False):
+        super().__init__(game, x, y, width, height, image, animationfile, scale, health)
+
+        self.explosionrange = 5
+        self.flyspeed = 5
+        self.exploding = exploding
+
+        self.owner = owner
+        if target:
+            self.target = target
         else:
-            return 0  # Geen cooldown meer.
+            self.target = pygame.math.Vector2(0,0)
+        self.direction = (self.target - self.pos).normalize()       #de richting naar waar het moet, genormaliseerd zodat we het kunnen gebruiken voor de componenten
 
-    @property
-    def punching(self):  # Controleer of de entiteit aan het stoten is.
-        if time.time() - self.last_punch_time < 0.3:  # Controleer of de stoot recent is uitgevoerd.
-            return True  # De entiteit is aan het stoten.
-        return False  # De entiteit is niet aan het stoten.
+        self.affected_by_gravity = 0
+        self.collider = False
+        self.collisionsEnabled = False
 
-    @property
-    def shooting(self):  # Controleer of de entiteit aan het schieten is.
-        if time.time() - self.last_shoot_time < 0.4:  # Controleer of het schot recent is uitgevoerd.
-            return True  # De entiteit is aan het schieten.
-        return False  # De entiteit is niet aan het schieten.
+        self.vel.x = self.direction.x*self.flyspeed
+        self.vel.y = self.direction.y*self.flyspeed
 
-class Projectile(Entity):  # Klasse voor projectielen zoals kogels of vuurballen.
-    def __init__(self, game, x, y, width=0, height=0, image="images/bomb.png", animationfile=None, scale=1, health=20, target=None, owner=None, exploding=False):
-        super().__init__(game, x, y, width, height, image, animationfile, scale, health)  # Roep de constructor van de ouderklasse aan.
+    def die(self):
+        super().die()
+        self.game.remove(self)
+        if self.exploding:
+            self.game.add(Explosion(self.game, self.pos.x, self.pos.y, explosionrange = self.explosionrange, center=self.center))    #creert een explosie in het centrum van de projectile
+        
 
-        self.explosionrange = 5  # Het bereik van de explosie.
-        self.flyspeed = 5  # De snelheid waarmee het projectiel vliegt.
-        self.exploding = exploding  # Geeft aan of het projectiel explodeert bij impact.
+    def update(self):
+        self.updatePos()
+        for col in self.game.colliders + self.game.fighters:
+            if col == self.owner:
+                pass
+            else:
+                if self.collideswith(col):
+                    if not self.exploding and isinstance(col, Entity):      #als het explodeert komt de damage van de explosion die optreedt bij self.die()
+                        col.getDamage(self.strength)
+                    self.die()
+        self.blit()
 
-        self.owner = owner  # De eigenaar van het projectiel (bijvoorbeeld een speler of vijand).
-        if target:  # Als er een doelwit is opgegeven:
-            self.target = target  # Stel het doelwit in.
-        else:  # Als er geen doelwit is opgegeven:
-            self.target = pygame.math.Vector2(0, 0)  # Stel een standaard doelwit in (0, 0).
-        self.direction = (self.target - self.pos).normalize()  # Bereken de richting waarin het projectiel moet bewegen.
+class Explosion(Entity):
+    def __init__(self, game, x, y, scale=1, center=None, explosionrange = 100, strength = 30):
+        super().__init__(game, x, y, scale = scale, animationfile = "animations/explosion.json", center=center)
+        self.playanimation("explosion")
+        self.static = True
+        self.explosionrange = explosionrange
+        self.strength = strength
+        self.collisionsEnabled = False
+        self.affected_by_gravity = False
 
-        self.affected_by_gravity = 0  # Het projectiel wordt niet beïnvloed door zwaartekracht.
-        self.collider = False  # Botsingen zijn uitgeschakeld.
-        self.collisionsEnabled = False  # Botsingen zijn volledig uitgeschakeld.
+        for ent in self.game.entities:
+            if ent.collideswith(self, range_ = self.explosionrange):        #als de explosionrange 0 is krijgen enkel de geraakte entities damage (zoals bij kogels ofz)
+                ent.getDamage(self.strength)
 
-        self.vel.x = self.direction.x * self.flyspeed  # Stel de horizontale snelheid in op basis van de richting en snelheid.
-        self.vel.y = self.direction.y * self.flyspeed  # Stel de verticale snelheid in op basis van de richting en snelheid.
+                knockback_direction = pygame.math.Vector2(ent.center.x - self.center.x,ent.center.y-self.center.y)
+                #print(knockback_direction.xy)
+                if not knockback_direction.xy == [0,0]:
+                    knockback_direction.normalize_ip()      #normaliseert de vector als het niet 0 is
 
-    def die(self):  # Methode die wordt aangeroepen wanneer het projectiel "sterft" (bijvoorbeeld bij impact).
-        super().die()  # Roep de die-methode van de ouderklasse aan.
-        self.game.remove(self)  # Verwijder het projectiel uit het spel.
-        if self.exploding:  # Als het projectiel explodeert:
-            self.game.add(Explosion(self.game, self.pos.x, self.pos.y, explosionrange=self.explosionrange, center=self.center))  # Voeg een explosie toe op de locatie van het projectiel.
+                ent.vel = knockback_direction*self.strength*2       #*(10/self.getDistanceFrom(ent))
+        
+    def update(self):
+        super().update()
+        if self.animations.current.name == "default":        #als de explosion animation af is gaat het weer naar default (lege animatie) als het zo is kan de explosion weg 
+            self.die()
 
-    def update(self):  # Methode die elke frame wordt aangeroepen.
-        self.updatePos()  # Werk de positie van het projectiel bij.
-        for col in self.game.colliders + self.game.fighters:  # Controleer botsingen met colliders en vechters.
-            if col == self.owner:  # Als het botsende object de eigenaar is:
-                pass  # Doe niets.
-            else:  # Als het botsende object niet de eigenaar is:
-                if self.collideswith(col):  # Controleer of het projectiel botst met het object.
-                    if not self.exploding and isinstance(col, Entity):  # Als het projectiel niet explodeert en het object een entiteit is:
-                        col.getDamage(self.strength)  # Breng schade toe aan het object.
-                    self.die()  # Laat het projectiel sterven.
-        self.blit()  # Teken het projectiel op het scherm.
+    def getDamage(self, damage):
+        pass
 
-class Explosion(Entity):  # Klasse voor explosies die optreden bij impact van projectielen.
-    def __init__(self, game, x, y, scale=1, center=None, explosionrange=100, strength=30):
-        super().__init__(game, x, y, scale=scale, animationfile="animations/explosion.json", center=center)  # Roep de constructor van de ouderklasse aan.
-        self.playanimation("explosion")  # Speel de explosie-animatie af.
-        self.static = True  # Maak de explosie statisch (niet bewegend).
-        self.explosionrange = explosionrange  # Stel het bereik van de explosie in.
-        self.strength = strength  # Stel de kracht van de explosie in.
-        self.collisionsEnabled = False  # Botsingen zijn uitgeschakeld.
-        self.affected_by_gravity = False  # De explosie wordt niet beïnvloed door zwaartekracht.
+    def die(self):
+        self.game.remove(self)
 
-        for ent in self.game.entities:  # Itereer door alle entiteiten in het spel.
-            if ent.collideswith(self, range_=self.explosionrange):  # Controleer of een entiteit binnen het bereik van de explosie valt.
-                ent.getDamage(self.strength)  # Breng schade toe aan de entiteit.
+class Player(Entity):
+    def __init__(self, game, x, y, width = 0, height = 0, image = "placeholder.png", animationfile = None, scale = 1, health = 100):
+        super().__init__(game, x, y, width, height, image, animationfile, scale)
+        self.walkSpeed = 10
+        self.shoot_key_hold = False
+        self.sneaking = False
+        self.health = health
 
-                knockback_direction = pygame.math.Vector2(ent.center.x - self.center.x, ent.center.y - self.center.y)  # Bereken de richting van de knockback.
-                if not knockback_direction.xy == [0, 0]:  # Controleer of de knockback-richting niet nul is.
-                    knockback_direction.normalize_ip()  # Normaliseer de knockback-richting.
+        self.last_punch_time = 0
 
-                ent.vel = knockback_direction * self.strength * 2  # Pas knockback toe op de entiteit.
+    def getKeyPress(self):
+        keys = pygame.key.get_pressed()
+        #beweging van de speler
+        accel = [0,0]
+        if not self.protecting:     #als de player zich beschermt kan hij niets anders doen
+            if keys[pygame.K_RIGHT]:
+                accel[0] += self.walkSpeed
+            if keys[pygame.K_LEFT]:
+                accel[0] += -self.walkSpeed
+            if keys[pygame.K_UP]:
+                self.jump()                 #te vinden bij Entity class
+            
+            if keys[pygame.K_SPACE]:
+                if time.time() - self.last_punch_time>0.5: 
+                    self.punch()
+                    self.last_punch_time = time.time()
 
-    def update(self):  # Methode die elke frame wordt aangeroepen.
-        super().update()  # Roep de update-methode van de ouderklasse aan.
-        if self.animations.current.name == "default":  # Controleer of de explosie-animatie is afgelopen.
-            self.die()  # Verwijder de explosie.
+        self.smoothSpeedChange(accel[0])        #indien we deze methode gebruiken blijft de speler staan indien we zowel links en rechts indrukken, en als je een toets loslaat heb je ook geen problemen met de richting die niet juist kan zijn
+        
+        
+        if keys[pygame.K_DOWN]:
+            self.sneaking = True
+            self.protecting = True
+        else:
+            self.sneaking = False
+            self.protecting = False
+                
+        if keys[pygame.K_a]:
+            """if not self.last_press:
+                self.last_press = time.time()
+            if time.time() - self.last_press > 1:""" #zou er in de toekomst meer dan een enemy zijn dan moet je door de lijst van enemies kunnen gaan (en niet telkens de dichtbijzijnde krijgen)    , dit zijn de beginselen ervan, negeer het voorlopig
+            
+            list_of_targets = PriorityQueue()
+            for i in [ent for ent in self.game.enemies if not ent == self]:
+                list_of_targets.put((self.pos.distance_to(i.pos), i))           #de afstand tussen self en de andere entity wordt als prioriteit gebruikt
+            
+            self.target = list_of_targets.get()[1]
+        else:
+            self.target = None
 
-    def getDamage(self, damage):  # Explosies kunnen geen schade oplopen.
-        pass  # Doe niets.
+            
+        if keys[pygame.K_z]:
+            if not self.shoot_key_hold and not self.protecting:
+                self.shoot_key_hold = True
+                if self.target:
+                    target_position = self.target.pos
+                elif self.flipSprite:
+                    target_position = pygame.math.Vector2(self.pos.x-1, self.pos.y)
+                else:
+                    target_position = pygame.math.Vector2(self.pos.x + self.width + 1, self.pos.y)
 
-    def die(self):  # Methode die wordt aangeroepen wanneer de explosie "sterft".
-        self.game.remove(self)  # Verwijder de explosie uit het spel.
+                self.shoot(target_position)
+        else:
+            self.shoot_key_hold = False
 
-class Player(Entity):  # De Player-klasse erft van de Entity-klasse en vertegenwoordigt de speler.
-    def __init__(self, game, x, y, width=0, height=0, image="placeholder.png", animationfile=None, scale=1, health=100):
-        super().__init__(game, x, y, width, height, image, animationfile, scale)  # Roep de constructor van de Entity-klasse aan.
-        self.walkSpeed = 10  # De snelheid waarmee de speler kan lopen.
-        self.shoot_key_hold = False  # Houdt bij of de schietknop wordt ingedrukt.
-        self.sneaking = False  # Boolean die aangeeft of de speler aan het sluipen is.
-        self.health = health  # De hoeveelheid gezondheidspunten van de speler.
+    def animationHandler(self):
+        if self.shooting:
+            self.playanimation("shoot")
+        elif self.punching:
+            self.playanimation("punch")
+        elif self.protecting:
+            self.playanimation("protect")
+        elif self.vel.y<0:
+            self.playanimation("jump")
+        elif self.onGround and self.vel.x !=0:
+            self.playanimation("walk")
+        elif self.vel.y>0:
+            self.playanimation("fall")
+        else:
+            self.playanimation("default")
 
-        self.last_punch_time = 0  # Tijdstip van de laatste stoot.
+    def die(self):
+        super().die()
+        self.game.scene = "game_over"
+        self.game.scene_running = False
+        self.game.winner = "Enemy"
+        
+    def update(self):
+        self.getKeyPress()
+        super().update()
 
-    def getKeyPress(self):  # Methode om toetsenbordinvoer te verwerken.
-        keys = pygame.key.get_pressed()  # Haalt de huidige status van alle toetsen op.
-        accel = [0, 0]  # Versnelling van de speler (x, y).
-        if not self.protecting:  # Als de speler zich beschermt, kan hij niets anders doen.
-            if keys[pygame.K_RIGHT]:  # Als de rechterpijltoets wordt ingedrukt:
-                accel[0] += self.walkSpeed  # Verhoog de snelheid naar rechts.
-            if keys[pygame.K_LEFT]:  # Als de linkerpijltoets wordt ingedrukt:
-                accel[0] += -self.walkSpeed  # Verhoog de snelheid naar links.
-            if keys[pygame.K_UP]:  # Als de omhoogpijltoets wordt ingedrukt:
-                self.jump()  # Laat de speler springen (methode te vinden in de Entity-klasse).
-
-            if keys[pygame.K_SPACE]:  # Als de spatiebalk wordt ingedrukt:
-                if time.time() - self.last_punch_time > 0.5:  # Controleer of de punch-cooldown is verstreken.
-                    self.punch()  # Laat de speler een stoot uitvoeren.
-                    self.last_punch_time = time.time()  # Update de tijd van de laatste stoot.
-
-        self.smoothSpeedChange(accel[0])  # Zorgt ervoor dat de snelheid soepel verandert.
-
-        if keys[pygame.K_DOWN]:  # Als de omlaagpijltoets wordt ingedrukt:
-            self.sneaking = True  # Zet de sluipmodus aan.
-            self.protecting = True  # Zet beschermen aan.
-        else:  # Als de omlaagpijltoets niet wordt ingedrukt:
-            self.sneaking = False  # Zet de sluipmodus uit.
-            self.protecting = False  # Zet beschermen uit.
-
-        if keys[pygame.K_a]:  # Als de "A"-toets wordt ingedrukt:
-            list_of_targets = PriorityQueue()  # Maak een prioriteitenlijst voor doelen.
-            for i in [ent for ent in self.game.enemies if not ent == self]:  # Itereer door alle vijanden.
-                list_of_targets.put((self.pos.distance_to(i.pos), i))  # Voeg vijanden toe aan de lijst, gesorteerd op afstand.
-            self.target = list_of_targets.get()[1]  # Stel het dichtstbijzijnde doelwit in.
-        else:  # Als de "A"-toets niet wordt ingedrukt:
-            self.target = None  # Verwijder het doelwit.
-
-        if keys[pygame.K_z]:  # Als de "Z"-toets wordt ingedrukt:
-            if not self.shoot_key_hold and not self.protecting:  # Controleer of de schietknop niet al wordt vastgehouden en de speler niet beschermt.
-                self.shoot_key_hold = True  # Zet de schietknop op vastgehouden.
-                if self.target:  # Als er een doelwit is:
-                    target_position = self.target.pos  # Gebruik de positie van het doelwit.
-                elif self.flipSprite:  # Als de speler naar links kijkt:
-                    target_position = pygame.math.Vector2(self.pos.x - 1, self.pos.y)  # Schiet naar links.
-                else:  # Als de speler naar rechts kijkt:
-                    target_position = pygame.math.Vector2(self.pos.x + self.width + 1, self.pos.y)  # Schiet naar rechts.
-
-                self.shoot(target_position)  # Vuur een projectiel af naar de doelpositie.
-        else:  # Als de "Z"-toets niet wordt ingedrukt:
-            self.shoot_key_hold = False  # Zet de schietknop op niet vastgehouden.
-
-    def animationHandler(self):  # Methode om de animaties van de speler te beheren.
-        if self.shooting:  # Als de speler aan het schieten is:
-            self.playanimation("shoot")  # Speel de schietanimatie af.
-        elif self.punching:  # Als de speler aan het stoten is:
-            self.playanimation("punch")  # Speel de stootanimatie af.
-        elif self.protecting:  # Als de speler zich beschermt:
-            self.playanimation("protect")  # Speel de beschermanimatie af.
-        elif self.vel.y < 0:  # Als de speler omhoog beweegt (springt):
-            self.playanimation("jump")  # Speel de springanimatie af.
-        elif self.onGround and self.vel.x != 0:  # Als de speler op de grond loopt:
-            self.playanimation("walk")  # Speel de loopanimatie af.
-        elif self.vel.y > 0:  # Als de speler naar beneden beweegt (valt):
-            self.playanimation("fall")  # Speel de valanimatie af.
-        else:  # Als geen van bovenstaande acties plaatsvindt:
-            self.playanimation("default")  # Speel de standaardanimatie af.
-
-    def die(self):  # Methode die wordt aangeroepen wanneer de speler sterft.
-        super().die()  # Roep de die-methode van de ouderklasse aan.
-        self.game.scene = "game_over"  # Zet de spelscène op "game_over".
-        self.game.scene_running = False  # Stop de huidige scène.
-        self.game.winner = "Enemy"  # Stel de winnaar in op "Enemy".
-
-    def update(self):  # Methode die elke frame wordt aangeroepen.
-        self.getKeyPress()  # Verwerk de toetsenbordinvoer.
-        super().update()  # Roep de update-methode van de ouderklasse aan.
-
-class Enemy(Entity):  # De Enemy-klasse erft van de Entity-klasse en vertegenwoordigt vijanden in het spel.
+class Enemy(Entity):
     def __init__(self, game, x, y, width=0, height=0, image="placeholder.png", animationfile=None, scale=1, health=20):
-        super().__init__(game, x, y, width, height, image, animationfile, scale, health)  # Roep de constructor van de Entity-klasse aan.
+        super().__init__(game, x, y, width, height, image, animationfile, scale, health)
 
-        self.target = game.players[0]  # Stel het eerste doelwit in (de eerste speler in de lijst).
-        self.walkSpeed = 5  # De loopsnelheid van de vijand.
-        self.ai = AI(game, self)  # Initialiseer de AI voor de vijand.
-        self.getPath(self.target)  # Bereken het pad naar het doelwit.
-
-        if len(self.path) > 0:  # Als er een pad is gevonden:
-            self.current_waypoint = self.path.pop()  # Stel het huidige waypoint in op het laatste punt in het pad.
-        else:  # Als er geen pad is gevonden:
-            self.current_waypoint = Waypoint(game, x, y)  # Stel een standaard waypoint in op de huidige positie.
-
-    def die(self):  # Methode die wordt aangeroepen wanneer de vijand sterft.
-        self.game.scene = "game_over"  # Zet de spelscène op "game_over".
-        self.game.scene_running = False  # Stop de huidige scène.
-        self.game.winner = f"Player"  # Stel de winnaar in op "Player".
-
-    def animationHandler(self):  # Methode om de animaties van de vijand te beheren.
-        if self.shooting:  # Als de vijand aan het schieten is:
-            self.playanimation("shoot")  # Speel de schietanimatie af.
-        elif self.punching:  # Als de vijand aan het stoten is:
-            self.playanimation("punch")  # Speel de stootanimatie af.
-        elif self.protecting:  # Als de vijand zich beschermt:
-            self.playanimation("protect")  # Speel de beschermingsanimatie af.
-        elif self.vel.y < 0:  # Als de vijand omhoog beweegt (springt):
-            self.playanimation("jump")  # Speel de springanimatie af.
-        elif self.onGround and self.vel.x != 0:  # Als de vijand op de grond loopt:
-            self.playanimation("walk")  # Speel de loopanimatie af.
-        elif self.vel.y > 0:  # Als de vijand naar beneden beweegt (valt):
-            self.playanimation("fall")  # Speel de valanimatie af.
-        else:  # Als geen van bovenstaande acties plaatsvindt:
-            self.playanimation("default")  # Speel de standaardanimatie af.
-
-    def movement(self):  # Methode om de beweging van de vijand te beheren.
-        path = self.path  # Haal het huidige pad op.
-        pos = self.center_bottom  # Haal de positie van de onderkant van de vijand op.
-        waypoint = self.current_waypoint  # Haal het huidige waypoint op.
-
-        if len(path) != 0:  # Als er nog waypoints in het pad zijn:
-            if pos.distance_to(waypoint.pos) <= 5 and self.onGround:  # Als de vijand dichtbij het huidige waypoint is en op de grond staat:
-                self.current_waypoint = path.pop()  # Stel het volgende waypoint in.
-            for num, i in enumerate(path):  # Controleer of er een korter pad is.
-                if pos.distance_to(waypoint.pos) > pos.distance_to(i.pos):  # Als een ander waypoint dichterbij is:
-                    self.path = path[:num]  # Verkort het pad tot dat waypoint.
-                    self.current_waypoint = path.pop()  # Stel het nieuwe waypoint in.
-        else:  # Als er geen pad meer is:
-            self.getPath(self.target)  # Bereken een nieuw pad naar het doelwit.
-
-        waypoint = self.current_waypoint  # Werk het huidige waypoint bij.
-
-        if waypoint.pos.x + 10 < pos.x:  # Als de vijand links van het waypoint is:
-            self.smoothSpeedChange(-self.walkSpeed)  # Beweeg naar links.
-            if waypoint.pos.y < pos.y and self.jumpwidth > abs(self.pos.x - waypoint.pos.x) and self.onGround:  # Controleer of de vijand moet springen.
-                self.jump()  # Laat de vijand springen.
-        elif waypoint.pos.x - 10 > pos.x:  # Als de vijand rechts van het waypoint is:
-            self.smoothSpeedChange(self.walkSpeed)  # Beweeg naar rechts.
-            if waypoint.pos.y < pos.y and self.jumpwidth > abs(self.pos.x - waypoint.pos.x) and self.onGround:  # Controleer of de vijand moet springen.
-                self.jump()  # Laat de vijand springen.
-        else:  # Als de vijand dichtbij het waypoint is:
-            self.smoothSpeedChange(0)  # Stop de beweging.
-
-    def getPath(self, target):  # Bereken het pad naar een doelwit.
-        path = self.ai.find_path(self.center_bottom, target.center_bottom)  # Gebruik de AI om een pad te vinden.
-        if path != []:  # Als er een pad is gevonden:
-            self.path: list = path  # Sla het pad op.
-            self.current_waypoint = self.path.pop()  # Stel het eerste waypoint in.
-        else:  # Als er geen pad is gevonden:
-            self.path = []  # Stel het pad in op een lege lijst.
-            print("Path not found!!")  # Print een foutmelding.
-
-    def show_path(self):  # Toon het pad van de vijand op het scherm (voor debugging).
-        try:
-            pygame.draw.lines(self.game.screen, (0, 255, 0), False, [point.pos for point in self.path], width=5)  # Teken het pad.
-        except:
-            pass  # Negeer fouten (bijvoorbeeld als het pad leeg is).
-
-    def actionHandler(self):  # Methode om de acties van de vijand te beheren.
-        if self.action_cooldown == 0:  # Als de cooldown voor acties is verlopen:
-            action = self.get_action()  # Kies een nieuwe actie.
-            # Initialiseer de acties.
-            match action:
-                case "attack":  # Als de actie "aanvallen" is:
-                    self.getPath(self.target)  # Bereken het pad naar het doelwit.
-                    self.current_action_length = 4  # Stel de duur van de actie in.
-                case "idle":  # Als de actie "stilstaan" is:
-                    self.current_action_length = 2  # Stel de duur van de actie in.
-                case "protect":  # Als de actie "beschermen" is:
-                    self.current_action_length = 1.5  # Stel de duur van de actie in.
-                case "runaway":  # Als de actie "wegrennen" is:
-                    furthest = None  # Zoek het verste waypoint.
-                    for i in self.ai.waypoints:  # Itereer door alle waypoints.
-                        if not furthest or i.pos.distance_to(self.target.pos) > furthest.pos.distance_to(self.target.pos):  # Zoek het waypoint dat het verst van het doelwit is.
-                            furthest = i
-                    if furthest:  # Als er een waypoint is gevonden:
-                        self.getPath(furthest)  # Bereken het pad naar dat waypoint.
-                    self.current_action_length = 3  # Stel de duur van de actie in.
-                case "shoot":  # Als de actie "schieten" is:
-                    self.current_action_length = 2  # Stel de duur van de actie in.
-                    self.shoot(self.target.pos)  # Laat de vijand schieten.
-                case "powerup":  # Als de actie "power-up pakken" is:
-                    closest = None  # Zoek de dichtstbijzijnde power-up.
-                    for i in self.game.powerups:  # Itereer door alle power-ups.
-                        if not closest or i.pos.distance_to(self.pos) < closest.pos.distance_to(self.pos):  # Zoek de dichtstbijzijnde power-up.
-                            closest = i
-                    if closest:  # Als er een power-up is gevonden:
-                        self.getPath(closest)  # Bereken het pad naar de power-up.
-                    self.current_action_length = 10  # Stel de duur van de actie in.
-
-            self.last_action_time = time.time()  # Update de tijd van de laatste actie.
-            self.current_action = action  # Sla de huidige actie op.
-
-        action = self.current_action  # Haal de huidige actie op.
-        self.protecting = False  # Zet beschermen uit.
-        # Werk de acties bij.
-        match action:
-            case "attack":  # Als de actie "aanvallen" is:
-                if len(self.path) < 1:  # Als er geen pad meer is:
-                    self.getPath(self.target)  # Bereken een nieuw pad naar het doelwit.
-                self.movement()  # Voer de bewegingslogica uit.
-                if self.collideswith(self.target):  # Controleer of de vijand het doelwit raakt.
-                    self.punch()  # Voer een stoot uit.
-                    self.current_action_length = 0  # Stel de actieduur in op 0.
-            case "idle":  # Als de actie "stilstaan" is:
-                self.smoothSpeedChange(0)  # Stop de beweging.
-            case "protect":  # Als de actie "beschermen" is:
-                self.protecting = True  # Zet beschermen aan.
-                self.smoothSpeedChange(0)  # Stop de beweging.
-            case "runaway":  # Als de actie "wegrennen" is:
-                self.movement()  # Voer de bewegingslogica uit.
-            case "shoot":  # Als de actie "schieten" is:
-                self.smoothSpeedChange(0)  # Stop de beweging.
-            case "powerup":  # Als de actie "power-up pakken" is:
-                self.movement()  # Voer de bewegingslogica uit.
-
-    def get_action(self):  # Kies een nieuwe actie voor de vijand.
-        distance_from_target = self.pos.distance_to(self.target.pos)  # Bereken de afstand tot het doelwit.
-
-        diff = self.target.health - self.health  # Bereken het verschil in gezondheid tussen de vijand en het doelwit.
-
-        # Bereken de gezondheidsverschillen.
-        if diff < 0:
-            player_health_diff = -diff  # Gezondheidsverschil van de speler.
-            health_diff = 0  # Gezondheidsverschil van de vijand.
+        self.target = game.players[0]
+        self.walkSpeed = 5
+        self.ai = AI(game, self)
+        self.getPath(self.target)
+        
+        #self.path.append(Waypoint(game, self.target.pos.x, self.target.pos.y))
+        if len(self.path)>0:
+            self.current_waypoint = self.path.pop()
         else:
-            health_diff = diff  # Gezondheidsverschil van de vijand.
-            player_health_diff = 0  # Gezondheidsverschil van de speler.
+            self.current_waypoint = Waypoint(game,x,y)
+        
+    def die(self):
+        self.game.scene = "game_over"
+        self.game.scene_running = False
+        self.game.winner = f"Player"
 
-        powerup_spawned = [i for i in self.game.objects if isinstance(i, PowerUp)] != []  # Controleer of er power-ups zijn gespawnd.
+    def animationHandler(self):
+        if self.shooting:
+            self.playanimation("shoot")
+        elif self.punching:
+            self.playanimation("punch")
+        elif self.protecting:
+            self.playanimation("protect")
+        elif self.vel.y<0:
+            self.playanimation("jump")
+        elif self.onGround and self.vel.x !=0:
+            self.playanimation("walk")
+        elif self.vel.y>0:
+            self.playanimation("fall")
+        else:
+            self.playanimation("default")
 
-        powerup_weight = powerup_spawned * health_diff  # Bereken het gewicht van de power-up actie.
+    def movement(self):
+        path = self.path
+        
+        pos = self.center_bottom
+        waypoint = self.current_waypoint
 
-        if distance_from_target < 300:  # Als de vijand dichtbij het doelwit is:
-            attack_weight = self.ready_to_punch * 30 + player_health_diff * 2  # Gewicht voor aanvallen.
-            runaway_weight = (not self.ready_to_punch) * 2 * health_diff  # Gewicht voor wegrennen.
-            protect_weight = (not self.ready_to_punch) * 10 + health_diff  # Gewicht voor beschermen.
-            return random.choices(["attack", "idle", "protect", "runaway"], weights=[attack_weight, 5, protect_weight, runaway_weight]).pop()  # Kies een actie.
-        elif 300 < distance_from_target < 800:  # Als de vijand op middellange afstand is:
-            attack_weight = self.ready_to_punch * 20 + player_health_diff * 2  # Gewicht voor aanvallen.
-            runaway_weight = (not (self.ready_to_punch or self.ready_to_shoot)) * health_diff  # Gewicht voor wegrennen.
-            protect_weight = (not (self.ready_to_punch or self.ready_to_shoot)) * 5 + health_diff  # Gewicht voor beschermen.
-            shoot_weight = self.ready_to_shoot * 10 + health_diff  # Gewicht voor schieten.
-            return random.choices(["attack", "idle", "protect", "runaway", "shoot", "powerup"], weights=[attack_weight, 5, protect_weight, runaway_weight, shoot_weight, powerup_weight]).pop()  # Kies een actie.
-        else:  # Als de vijand ver weg is:
-            attack_weight = self.ready_to_punch * 1  # Gewicht voor aanvallen.
-            shoot_weight = self.ready_to_shoot * 20 + health_diff  # Gewicht voor schieten.
-            return random.choices(["attack", "idle", "shoot", "powerup"], weights=[attack_weight, 10, shoot_weight, powerup_weight]).pop()  # Kies een actie.
+        if len(path) !=0:
+            if pos.distance_to(waypoint.pos) <= 5 and self.onGround:
+                self.current_waypoint = path.pop()
+            for num, i in enumerate(path):
+                if pos.distance_to(waypoint.pos) > pos.distance_to(i.pos):
+                    self.path = path[:num]
+                    self.current_waypoint = path.pop()
+        else:
+            self.getPath(self.target)
+        waypoint = self.current_waypoint
+        
+        if waypoint.pos.x + 10< pos.x:                                          #als de enemy in een 10 pixel range is kan het stoppen (dit voorkomt heen en weer gaan)
+            self.smoothSpeedChange(-self.walkSpeed)
+            if waypoint.pos.y < pos.y and self.jumpwidth > abs(self.pos.x - waypoint.pos.x) and self.onGround:           #and waypoint.pointType == "dropdown_R"
+                self.jump()
+        elif waypoint.pos.x - 10> pos.x:
+            self.smoothSpeedChange(self.walkSpeed)
+            if waypoint.pos.y < pos.y and self.jumpwidth > abs(self.pos.x - waypoint.pos.x) and self.onGround:           #and waypoint.pointType == "dropdown_L"
+                self.jump()
+        else:
+            self.smoothSpeedChange(0)
+    
+    def getPath(self, target):
+        path  = self.ai.find_path(self.center_bottom, target.center_bottom)
+        if path != []:
+            self.path:list = path
+            self.current_waypoint = self.path.pop()
+        else:
+            self.path = []
+            print("Path not found!!")
 
-    def update(self):  # Update de status van de vijand.
-        super().update()  # Roep de update-methode van de ouderklasse aan.
-        if self.game.debugging == True:  # Als debugging is ingeschakeld:
-            for point in self.ai.waypoints:  # Itereer door alle waypoints.
-                point.update()  # Werk de waypoints bij (teken ze op het scherm).
-            self.show_path()  # Toon het pad tussen de waypoints.
-        self.actionHandler()  # Beslis welke actie de vijand uitvoert.
+    def show_path(self):
+        try:
+            pygame.draw.lines(self.game.screen, (0,255,0), False, [point.pos for point in self.path], width=5)
+        except:
+            pass
+
+    def actionHandler(self):
+        if self.action_cooldown == 0:
+            action = self.get_action()
+            #initialiseren van de acties
+            match action:
+                case "attack":
+                    self.getPath(self.target)
+                    self.current_action_length = 4
+                case "idle":
+                    self.current_action_length = 2
+                case "protect":
+                    self.current_action_length = 1
+                case "runaway":
+                    furthest = None
+                    for i in self.ai.waypoints:
+                        if not furthest or i.pos.distance_to(self.target.pos) > furthest.pos.distance_to(self.target.pos):
+                            furthest = i
+                    if furthest:
+                        self.getPath(furthest)
+                    self.current_action_length = 3
+                case "shoot":
+                    self.current_action_length = 2
+                    self.shoot(self.target.pos)
+                case "powerup":
+                    closest = None
+                    for i in self.game.powerups:
+                        if not closest or i.pos.distance_to(self.pos) < closest.pos.distance_to(self.pos):
+                            closest = i
+                    if closest:
+                        self.getPath(closest)
+                    self.current_action_length = 10
+                    
+            self.last_action_time = time.time()
+            self.current_action = action
+
+        action = self.current_action        
+        self.protecting = False
+        #updaten van de acties
+        match action:
+                case "attack":
+                    if len(self.path)<1:
+                        self.getPath(self.target)
+                    #print(self.path)
+                    self.movement()
+                    if self.collideswith(self.target):
+                        self.punch()
+                        self.current_action_length = 0
+                case "idle":
+                    self.smoothSpeedChange(0)
+                case "protect":
+                    self.protecting = True
+                    self.smoothSpeedChange(0)
+                case "runaway":
+                    self.movement()
+                case "shoot":
+                    self.smoothSpeedChange(0)
+                case "powerup":
+                    self.movement()
+
+    def get_action(self):
+        #if actioncooldown is 0: choose new action
+        distance_from_target = self.pos.distance_to(self.target.pos)
+
+        diff = self.target.health - self.health 
+
+        #de health diff's vertellen hoeveel hp de enemy of de speler minder heeft dan de andere (alles < 0 wordt 0)
+        if diff<0: 
+            player_health_diff = -diff
+            health_diff = 0
+        else:
+            health_diff = diff
+            player_health_diff = 0
+
+        powerup_spawned = [i for i in self.game.objects if isinstance(i, PowerUp)] != []
+            
+        powerup_weight = powerup_spawned*health_diff#*self.pos.distance_to powerup ofz
+
+        if distance_from_target < 300:
+            attack_weight = self.ready_to_punch * 30 + player_health_diff*2
+            runaway_weight = (not self.ready_to_punch)*2*health_diff
+            protect_weight = (not self.ready_to_punch)*5 + health_diff
+            return random.choices(["attack", "idle", "protect", "runaway"], weights = [attack_weight, 5,protect_weight, runaway_weight]).pop()      #pop omdat het een list returnt
+        elif 300 < distance_from_target < 800:
+            attack_weight = self.ready_to_punch * 20 + player_health_diff*2
+            runaway_weight = (not (self.ready_to_punch or self.ready_to_shoot))*health_diff
+            protect_weight = (not (self.ready_to_punch or self.ready_to_shoot))*5 + health_diff
+            shoot_weight = self.ready_to_shoot * 10 + health_diff
+            return random.choices(["attack", "idle", "protect", "runaway", 'shoot', "powerup"], weights = [attack_weight, 5,protect_weight, runaway_weight, shoot_weight, powerup_weight]).pop()
+        else:
+            attack_weight = self.ready_to_punch * 1
+            shoot_weight = self.ready_to_shoot * 20 + health_diff
+            return random.choices(["attack", "idle", 'shoot', "powerup"], weights = [attack_weight, 10, shoot_weight, powerup_weight]).pop()
+
+    def update(self):
+        super().update()
+        if self.game.debugging == True:
+            for point in self.ai.waypoints:
+                point.update()              #tekent de punten
+            #self.show_path()                #toont de pad tussen de punten
+            self.ai.show_path()
+        self.actionHandler()                #beslist wat de enemy doet als actie (blijft staan, valt aan, enz)
+        
